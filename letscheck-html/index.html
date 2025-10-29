@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162059356-2"></script>
+  <script src="js/gtag.js"></script>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NUS Centre for Trusted Internet and Community</title>
+  <link href="images/favicon.ico" type="image/vnd.microsoft.icon">
+  <meta name="keywords"
+        content="NUS, CTIC, Centre for Trusted Internet and Community, Internet and trust, Internet and community, Internet and public good, Misinformation, Disinformation, Fake news, Good technology, Digital wellbeing, Digital intelligence"
+  />
+  <meta name="rights" content="National University of Singapore"/>
+  <meta name="description"
+        content="NUS Centre for Trusted Internet and Community aims to integrate social and behavioural science research, digital technologies, data-driven approaches, and policy studies to holistically examine the Internet and its societal impact"
+  />
+  <meta name="google-site-verification" content="BKFQngs3vcAVXTTzeRuXaGvrZmclMGRTgu6cp-MLkvM"/>
+  <meta name="google-site-verification" content="QfdfA8xpn-7WYqglaL6eX37WzpsfityDynXflnjqUPw"/>
+  <link rel="stylesheet" href="css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="css/styleguide.css"/>
+  <link rel="stylesheet" href="css/template.css"/>
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/searchbar.css">
+  <link href="css/newcss.css" rel="stylesheet">
+  <link href="css/quin.css" rel="stylesheet">
+  <script src="assets/jquery-3.6.0.min.js"></script>
+  <script src="assets/bootstrap.min.js" type="text/javascript"></script>
+  <script src="js/jquery.tap.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="js/fancybox-master/dist/jquery.fancybox.min.css"/>
+  <script src="js/fancybox-master/dist/jquery.fancybox.min.js"></script>
+  <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"/>
+  <link rel="stylesheet" href="css/veracity.css">
+  <link rel="stylesheet" href="css/index.css"/>
+</head>
+<body>
+<!-- MENU FOR MOBILE - OFF CANVAS - START -->
+<div id="nus-sidebar-off-canvas"
+     class="nus-sidebar-off-canvas hidden-lg hidden-md off-canvas-effect-4 off-canvas-right"></div>
+<!-- MENU FOR MOBILE	 - OFF CANVAS - END -->
+<div class="nus-body-container">
+  <div class="nus-wrapper">
+    <!-- MENU FOR header - START -->
+    <div id="menu-header"></div>
+    <!-- MENU FOR header - END -->
+    <!-- CONTENT - START -->
+    <div class="nus-department-header">
+      <div class="orange">
+        <div class="container">
+          <h3 class="page-title"> Let's check COVID-19 Claims </h3>
+        </div>
+      </div>
+    </div>
+    <div id="container-main" class="container">
+      <div class="container">
+        <div class="featurette-divider"></div>
+        <h4>
+          The COVID-19 pandemic demonstrates the importance of responsible public discourse. This platform allows you to
+          explore claims circulating in Twitter, and you can choose to check against scientific articles or news.
+        </h4>
+      </div>
+      <div class="container">
+        <br/>
+        <div class="mb-3 d-flex">
+          <input id="active-engine" value="twitter"/>
+          <!-- 3 Buttons -->
+          <div class="col-12 col-md-3 mb-2">
+            <button id="twitter" type="submit" class="btn btn-block btn-primary choices">
+              Twitter
+            </button>
+          </div>
+
+          <div class="col-12 col-md-3 mb-2">
+            <button id="news" type="submit" class="btn btn-block btn-default choices">
+              News
+            </button>
+          </div>
+
+          <div class="col-12 col-md-3 mb-2">
+            <button id="science" type="submit" class="btn btn-block btn-default w-150 choices">
+              Scientific articles
+            </button>
+          </div>
+        </div>
+        <br/>
+        <!-- Search box -->
+        <form id="query-form" class="form-inline col-12 col-md-12 my-2 my-lg-2">
+          <div class="input-group">
+            <input type="text" size="75" id="query-input" class="form-control bg-white border-1"
+                   placeholder="Input your claim..." maxlength="128" value=""
+                   spellcheck="true" required><br/>
+            <div class="input-group-addon">
+              <div id="query-submit-button"><i class="fa fa-search"></i></div>
+            </div>
+          </div>
+          <br/>
+          <span id="query-input-empty-message"></span>
+        </form>
+        <br/>
+      </div>
+      <!-- Scientific Articles and News search results display-->
+      <div id="results-wrapper">
+        <div id='result-display'>
+          <img id="loading-spinner" src="images/loader-spinner.gif" alt="">
+        </div>
+        <div class="container" id="search-results">
+          <div class="result-container" id="search-results-content">
+          </div>
+          <div id="search-count-and-pagination">
+            <div id="search-count"></div>
+            <i>
+              <div class="centered" id="search-results-credit"></div>
+            </i>
+          </div>
+        </div>
+        <div class="container">
+          <h4 id="search-error-messages">
+          </h4>
+        </div>
+        <!-- Twatch frame for Twitter search -->
+        <!-- hide by default -->
+        <div id="twatch-container">
+          <div class="container" id="Twatch-frame-container">
+            <iframe id="Twatch-frame" src="" title="Twatch frame"></iframe>
+          </div>
+          <div class="container" id="trend-frame-container">
+            <iframe id="trend-frame" src="https://letscheck.nus.edu.sg/twatch/trend/" title="Trend frame"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- CONTENT - END -->
+    <!-- FOOTER - START -->
+    <footer class="nus-footer" id="footer"></footer>
+    <!-- FOOTER - END -->
+  </div>
+  <!-- NUS WRAPPER -->
+</div>
+<!-- NUS BODY CONTAINER -->
+</body>
+<script type="text/javascript" src="js/mobile.js"></script>
+<script type="text/javascript" src="js/load-templates.js"></script>
+<script src="js/index.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/veracity.js"></script>
+<!-- Add below to footer or at end of BODY tag -->
+<script src="cookieconsent/cookieconsent.min.js"></script>
+<!-- Change the script path to where the "cookieconsent" folder is located at-->
+<script src="cookieconsent/cookieconsent-config.js"></script>
+</html>
+
+

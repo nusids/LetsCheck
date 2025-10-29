@@ -1,0 +1,152 @@
+table,
+th,
+td {
+    border: 1px solid black;
+}
+
+h4 {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+p {
+    color: white;
+    border-width: thick;
+}
+
+h3.page-title {
+    padding-left: 15px !important;
+}
+
+button.choices {
+    font-size: 17px;
+}
+
+.example-qn.btn {
+    text-align: left;
+    color: rgb(0, 48, 98);
+    background: rgba(0, 48, 98, 0.05);
+    border: 1px rgba(0, 48, 98, 0.3) solid;
+}
+
+.example-qn.btn::before {
+    content: "⏵ ";
+}
+
+.example-qn.btn:hover {
+    background-color: transparent;
+}
+
+.result-container {
+    border: 1pt solid #dedede;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.rtype {
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+#examples-div {
+    min-height: 50vh;
+    margin-top: 2em;
+}
+
+#example-buttons-div {
+    display: flex;
+    flex-direction: column;
+    /*justify-content: space-around;*/
+    /*height: 30vh;*/
+    margin-bottom: 20vh;
+}
+
+#example-buttons-div button {
+    margin-bottom: 2em;
+}
+
+#example-buttons-div button img {
+    height: 30px;
+}
+
+#footer {
+    position: relative;
+}
+
+#loading-spinner {
+    width: 10%;
+    height: 30%;
+    padding-top: 20vh;
+    padding-bottom: 20vh;
+    display: none;
+}
+
+#query-input {
+    font-size:16px;
+}
+
+#query-input-empty-message {
+    color:red;
+}
+
+#result-spinner-div {
+    text-align: center;
+}
+
+#rtypes {
+    margin-bottom: 1.5em;
+}
+
+#search-box-div {
+    display: flex;
+    margin-bottom: 2em;
+}
+
+#search-count {
+    margin-bottom: -2rem;
+}
+
+#search-count-and-pagination {
+    text-align: center;
+}
+
+#search-error-messages {
+    text-align: center;
+    margin: 2em auto;
+    display: none;
+    padding-top: 15vh;
+    padding-bottom: 25vh;
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+#search-results {
+    display: none;
+    padding-top: 1.5em;
+}
+
+#search-results-content {
+    display: none;
+}
+
+#search-results-content-items {
+    height: 75vh;
+    overflow-y: scroll;
+}
+
+#search-results-credit {
+    text-align: center;
+    margin-top: 1em;
+}
+
+#search-results-credit small {
+    font-size: 13px; color: black;
+}
+
+#submit-button-div {
+    cursor: pointer;
+}
+
+#submit-button-div button {
+    border: none;
+}

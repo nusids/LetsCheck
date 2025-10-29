@@ -1,0 +1,3 @@
+- Make sure sentence-transformers is installed as: pip install sentence-transformers==0.3.0
+- pytorch must be installed manually, otherwise there will be CUDA error. Follow the instructions here: https://pytorch.org/get-started/locally/
+- restart_flag is used to notify when quin-covid backend should reload; do no delete

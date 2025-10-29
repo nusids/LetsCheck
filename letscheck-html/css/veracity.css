@@ -1,0 +1,60 @@
+div.result {
+    border-style: solid;
+    border-width: thin;
+    display: none;
+    background-color: #fcfcfc;
+}
+
+div.veracity-rating {
+    text-align: center;
+    font-size: 20pt;
+    margin-bottom: 0.3em;
+}
+
+p.disclaimer {
+    text-align: center;
+    color: #212121;
+    margin-bottom: 1.5em;
+    font-size: 10pt;
+}
+
+.result.entailment {
+    background-color: rgb(235, 255, 235);
+}
+
+.result.contradiction {
+    background-color: rgb(255, 235, 235);
+}
+
+.result div.line-break {
+    height: 1em;
+}
+
+.result span.text {
+    font-size: 14px;
+}
+
+.result .title a {
+    font-size: 17px;
+    color: #2196F3;
+}
+
+.veracity-rating span {
+    font-weight: bold;
+}
+
+.veracity-rating span.true {
+    color: darkgreen;
+}
+
+.veracity-rating span.false {
+    color: darkred;
+}
+
+.veracity-rating span.ambiguous {
+    color: #885417;
+}
+
+.veracity-rating span.unknown {
+    color: #616161;
+}

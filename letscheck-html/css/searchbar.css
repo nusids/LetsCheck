@@ -1,0 +1,9 @@
+.menu_button {
+    min-width: 150px !important;
+    max-width: 150px !important;
+}
+
+.menu_button_grouped {
+    min-width: 104px !important;
+    max-width: 134px !important;
+}

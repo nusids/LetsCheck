@@ -1,0 +1,331 @@
+@charset "utf-8";
+.module-title {
+    background: transparent;
+    color: #fff;
+    margin-top: 0;
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: 18px;
+}
+.image-ai {
+    height: auto;
+    max-width: 99%;
+}
+.font-ai {
+    color: #FF0004;
+    font-weight: bold;
+}
+.para-ai {
+    color: #000000;
+    font-size: large;
+}
+.div-map {
+    height: auto;
+    max-width: 99%;
+
+}
+.title-line {
+    width: 60px;
+    margin: 7px 0px;
+    border-bottom: 4px solid #ef7c00;
+    text-align: left;
+}
+.title-line2 {
+    width: 60px;
+    margin-top: 3.5px;
+    margin-right: 0px;
+    margin-left: 0px;
+    margin-bottom: 7px;
+    border-bottom: 2px solid #ef7c00;
+    text-align: left;
+}
+.title-font {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+}
+.title-font2 {
+    text-align: center;
+    color: #0066bf;
+    line-height: 1.4em;
+    font-size: 2em;
+    font-weight: bold;
+}
+figure-new {
+    width: 700px;
+    max-width: 99%;
+    margin-right: auto;
+    display: inherit;
+    position: static;
+    padding-top: 15px;
+    padding-right: 30px;
+}
+figure-new img {
+
+}
+.figure-new {
+    width: 700px;
+    max-width: 99%;
+    margin-right: auto;
+    padding-bottom: 20px;
+    display: block;
+    position: static;
+    padding-right: 30px;
+}
+.elementor-title {
+    font-size: 41px;
+    text-align: center;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 45px;
+    text-shadow: 0px 0px 5px rgba(0,0,0,0.28);
+    font-variant: normal;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", Verdana, sans-serif;
+}
+.title-font-center {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+    text-align: center;
+}
+.title-div {
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+    background-color: rgba(22,22,94,1.00);
+    color: rgba(255,255,255,1.00);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 699px){
+.title-font {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+}
+.title-font {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+}
+.container {
+    padding-top: 0px;
+
+
+
+}
+.footer-left {
+    text-align: center;
+}
+.text-right {
+    text-align: center;
+}
+.col-lg-6 .col-md-6 .footer-left {
+    text-align: center;
+}
+.h4-index {
+    margin-bottom: -500px;
+    padding-bottom: 0px;
+    display: none;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+@media (min-width: 700px){
+main {
+    width: 48%;
+    margin-right: 25px;
+}
+main2 {
+
+
+}
+aside {
+    width: 48%;
+}
+main, aside {
+    float: left;
+}
+external1 {
+    width: 32%;
+    margin-right: 1%;
+    margin-bottom: 20px;
+}
+external2 {
+    width: 32%;
+    margin-right: 1%;
+    margin-bottom: 20px;
+}
+external3 {
+    width: 32%;
+    margin-right: 1%;
+    margin-bottom: 20px;
+}
+external1, external2, external3 {
+    float: left;
+
+}
+.external-img {
+    min-height: 200px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+@media (max-width: 766px){
+.container {
+
+
+
+
+}
+.nus-banner {
+    margin-bottom: -2%;
+}
+.footer-right {
+    width: 10%;
+    position: relative;
+    top: 30%;
+    margin-top: 50px;
+    margin-right: 20px;
+    margin-left: 45%;
+    margin-bottom: 20px;
+    padding-top: 5em;
+}
+.footer-fb {
+    /* [disabled]padding-top: 1em; */
+    margin-top: 1em;
+}
+.h4-index {
+    display: none;
+}
+
+
+
+
+
+}
+
+@media (min-width:1200px){
+.nus-banner {
+    text-align: center;
+    margin: auto;
+    position: relative;
+}
+.h4-index {
+    margin-bottom: 140px;
+
+
+
+
+}
+
+
+
+
+
+}
+
+@media (max-width:991px){
+.h4-index {
+    margin-bottom: 140px;
+    display: none;
+
+
+
+
+}
+.footer-left {
+    text-align: right;
+}
+
+.text-right {
+    text-align: center;
+}
+.col-lg-6 .col-md-6 .footer-left {
+    text-align: right;
+    width: 20%;
+
+}
+
+.footer-mid {
+}
+
+
+
+
+
+
+
+
+
+
+}
+.deadline {
+    color: #FF0004;
+}
+.externals {
+
+}
+
+@media (min-width:900px){
+.floatleft {
+    float: left;
+    margin-right: 10px;
+    display: inline-table;
+}
+
+
+}

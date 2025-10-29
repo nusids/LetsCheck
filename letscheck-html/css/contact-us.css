@@ -1,0 +1,43 @@
+.container > .featurette {
+    padding-bottom: 3em;
+}
+
+.nvs {
+    position: relative;
+    text-align: right;
+    height: 325px;
+    width: 643px;
+}
+
+#embed-div {
+    position: absolute;
+    width: 80%;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    color: #000;
+    text-align: center;
+}
+
+#embed-div small {
+    line-height: 1.8;
+    font-size: 0;
+    background: #fff;
+}
+
+#gmap_canvas img {
+    max-width: none !important;
+    background: none !important
+}
+
+#image-ai {
+    border: 1px solid black;
+}
+
+#map-div {
+    overflow:hidden;
+    width: 550px;
+    position: relative;
+}

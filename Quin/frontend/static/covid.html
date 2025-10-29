@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="Chris Samarinas">
+		<meta property="og:title" content="Quin">
+		<meta property="og:description" content="">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+		<title>Quin</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.1/jquery-ui.css">
+		<script type="text/javascript">
+			function search() {
+				query_str = encodeURIComponent($("#qinput").val());
+				if(query_str=='') return;
+				$('#results').html('<p class="centered"><img src="img/loader.gif"/></p>');
+				$('#rtypes').hide();
+				$('#veracity').hide();
+				$('#description').hide();
+
+				$.ajax({
+					type: "GET",
+					url: "api",
+					data: "source=" + source + "&query=" + query_str,
+					dataType: "json",
+					success: function(res){
+						if(res.status == 'ok'){
+							$('#results').html('');
+							qtype = res.data.type;
+							res = res.data.results;
+
+							if(qtype == 'statement') {
+								$('#rtypes').show();
+								$('#veracity').show();
+							}
+
+							count_all = res.length;
+							count_support = 0;
+							count_refute = 0;
+
+							for(var i=0;i<res.length;i++){
+								rtype = ''
+								nli_class = res[i].nli_class
+								if(nli_class != null && nli_class != 'neutral') {
+									rtype = res[i].nli_class
+									if(rtype == 'entailment') {
+										count_support += 1;
+									}else {
+										count_refute += 1;
+									}
+								}
+								$result = $('<div class="result '+rtype+'"></div>');
+
+								if(source=='cord') {
+									authors = '<br/><div class="gray small">'+res[i].authors+'&nbsp;&middot;&nbsp;'+res[i].journal+'</div>';
+								} else {
+									authors = '<br/><div class="gray small">'+res[i].date+'</div>';
+								}
+								$result.append('<div class="title"><a href="'+res[i].url+'" target="_blank">'+res[i].title+'</a></div><span class="text">... '+res[i].snippet+' ...</span><br/>'+authors);
+								$('#results').append($result);
+							}
+
+							$('#r_all').html('all ('+count_all+')');
+							$('#r_supporting').html('✔ supporting ('+count_support+')');
+							$('#r_refuting').html('✘ refuting ('+count_refute+')');
+
+							$('#r_all').click();
+
+							if(count_support > 8 || count_refute > 8) {
+								if(count_support / count_refute > 1.7) {
+									$('#veracity-rating').html('<b class="green">✔ Probably True</b>');
+								} else if (count_refute / count_support > 1.7) {
+									$('#veracity-rating').html('<b class="red">✘ Probably False</b>');
+								} else {
+									$('#veracity-rating').html('<b class="orange">? Ambiguous</b>');
+								}
+							} else {
+								$('#veracity-rating').html('<b>Not enough evidence</b>');
+							}
+						} else {
+							setTimeout('search();', 1000)
+						}
+					}
+				});
+			}
+
+			$(document).ready(function() {
+				source = 'news';
+
+				$('.example').click(function () {
+					$('#qinput').val($(this).text());
+					search();
+				});
+
+				$('.button').click(function() {
+					$(this).blur();
+					search();
+				});
+
+				$('.tab').click(function () {
+					$('.tab').removeClass('selected');
+					$(this).addClass('selected');
+					source = $(this).html();
+					if(source == 'research') {
+						source = 'cord'
+					}
+					search();
+				});
+
+				$('#r_all').click(function () {
+					$('.rtype').removeClass('selected');
+					$(this).addClass('selected');
+					$('.result').show();
+				})
+
+				$('#r_supporting').click(function () {
+					$('.rtype').removeClass('selected');
+					$(this).addClass('selected');
+					$('.result').hide();
+					$('.entailment').show();
+				})
+
+				$('#r_refuting').click(function () {
+					$('.rtype').removeClass('selected');
+					$(this).addClass('selected');
+					$('.result').hide();
+					$('.contradiction').show();
+				})
+
+				$("#qinput").on("keydown", function( event ) {
+					if(event.keyCode === $.ui.keyCode.ENTER){
+						$(this).blur();
+						search();
+					}
+				});
+
+				$("#qinput").autocomplete({
+					source: function(request, response) {
+						$.getJSON(
+							"queries.json",
+							function (data) {
+								var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(request.term), "i");
+								response($.map(data, function(item) {
+								   if (matcher.test(item)) {
+									   return (item)
+								   }
+								}));
+							}
+						);
+					},
+					select: function( event, ui ) {
+						$('#qinput').blur();
+						setTimeout('search();', 100);
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<header>
+				<h1>Quin+</h1>
+			</header>
+			
+			<main>
+				<div class="centered">
+					<span class="tab selected">news</span>&nbsp;&nbsp;<span class="tab">research</span>
+				</div>
+				
+				<p class="centered">
+					<input type="text" id="qinput" placeholder="search for a claim or question related to COVID-19" autofocus>
+					<button class="button">search</button>
+				</p>
+
+				<br/>
+				<div id="description">
+					<p>In response to the COVID-19 pandemic, we created an NLU-powered semantic search engine based on our recent research, to help people and the scientific community check facts and answer questions at scale about COVID-19, from 400K+ news articles and 100K+ research publications.</p>
+
+					Try to phrase your queries as claims to check their veracity:<br/>
+				<ul>
+					<li><a class="example" href="#">events were cancelled because of the virus</a></li>
+					<li><a class="example" href="#">young people cannot die from the virus</a></li>
+					<li><a class="example" href="#">there is a cure for COVID-19</a></li>
+					<li><a class="example" href="#">the virus originated from humans</a></li>
+				</ul>
+
+					or as questions to find answers: <br/>
+				<ul>
+					<li><a class="example" href="#">is COVID-19 the same as SARS?</a></li>
+					<li><a class="example" href="#">what are the risk factors of COVID-19?</a></li>
+					<li><a class="example" href="#">how many are the infected people in Italy?</a></li>
+					<li><a class="example" href="#">what are the early symptoms of COVID-19?</a></li>
+				</ul>
+
+					<p>Also check out <a href="/">Quin for general queries</a>.</p>
+
+				</div>
+
+				<div id="veracity" class="gray">Veracity rating:<br/><br/>
+					<span id="veracity-rating"></span><br/><br/>
+					<div class="small" style="text-align: left">Disclaimer: The veracity rating is still experimental and it is based on evidence from news articles. News articles can still be misleading, and our models are not 100% accurate. For reliable fact-checks you can trust <a href="https://en.wikipedia.org/wiki/List_of_fact-checking_websites">fact-checking organizations</a>.</div>
+				</div>
+
+				<div id="rtypes" class="centered"><span class="rtype" id="r_all">all (0)</span><span class="rtype" id="r_supporting">✔ supporting (0)</span><span class="rtype" id="r_refuting">✘ refuting (0)</span></div>
+
+				<div id="results"></div>
+
+				<br/><br/><br/><br/><br/><br/><br/>
+			</main>
+			
+			<footer>
+				<p class="centered">
+					<small>[<a href="https://towardsdatascience.com/building-a-semantic-search-engine-for-large-scale-fact-checking-and-question-answering-9aa356632432">Blog post</a>] - [<a href="https://www.researchgate.net/publication/342815574">Paper</a>] - [<a href="https://github.com/algoprog/Quin">Source code</a>]</small><br/><br/>
+					<small>
+						Quin is a project by <a href="https://algoprog.com">Chris Samarinas</a>, <a href="https://www.comp.nus.edu.sg/~whsu/">Wynne Hsu</a>, <a href="https://www.comp.nus.edu.sg/~leeml/">Lee Mong Li</a>
+					</small>
+					<br/><br/>
+					<a href="http://ids.nus.edu.sg/"><img src="img/nus2.png" height="50" /></a><a href="https://ctic.nus.edu.sg/"><img src="img/nus1.png" height="47"></a>
+					<br/><br/>
+				</p>
+			</footer>
+		</div>
+	</body>
+</html>
