@@ -1,0 +1,12 @@
+site_name: LetsCheck documentation
+nav:
+  - Overview: deployment-overview.md
+  - LetsCheck website: letscheck-website.md
+  - Twatch:
+    - Application: twatch.md
+    - Crawler: twatch-crawler.md
+  - Quin:
+    - Quin-COVID: quin-covid.md
+    - Quin-general: quin-general.md
+  - API request handling: api-request-handling.md
+theme: readthedocs
