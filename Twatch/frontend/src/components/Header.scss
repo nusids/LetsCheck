@@ -1,0 +1,49 @@
+:local {
+  .headerFixed {
+    padding: 1rem 3rem 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 998;
+    background: white;
+    right: 0;
+  }
+
+  .header {
+    padding: 1rem 3rem 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
+  .logo {
+    height: 100%;
+    -webkit-user-drag: none;
+    cursor: pointer;
+    width: 6rem;
+    height: auto;
+  }
+
+  .signInButton {
+    border: 1px solid #1DA1F2;
+    border-radius: 5px;
+    width: 6rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    color: #1DA1F2;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .buttonIcon {
+    height: 14px;
+    margin: 0 14px;
+  }
+}

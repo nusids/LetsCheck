@@ -1,0 +1,27 @@
+/* eslint-disable no-underscore-dangle */
+import React from 'react';
+import PropTypes from 'prop-types';
+
+class TIBLabel extends React.PureComponent {
+  render() {
+    const { className, nodeData } = this.props;
+    if (!nodeData || nodeData.info.isRoot) {
+      return null;
+    }
+
+    return (
+      <div className={className}>{nodeData.info.time}</div>
+    );
+  }
+}
+
+TIBLabel.propTypes = {
+  className: PropTypes.string.isRequired,
+  nodeData: PropTypes.object,
+};
+
+TIBLabel.defaultProps = {
+  nodeData: null,
+};
+
+export default TIBLabel;

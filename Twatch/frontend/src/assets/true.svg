@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>checked</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD" transform="translate(-919.000000, -466.000000)" fill="#1DA1F2" fill-rule="nonzero">
+            <g id="checked" transform="translate(919.000000, 466.000000)">
+                <path d="M50,0 C22.3870662,0 0,22.3861287 0,50 C0,77.6138713 22.3870662,100 50,100 C77.6159806,100 100,77.6138713 100,50 C100,22.3861287 77.6150431,0 50,0 Z M40.8279544,75.6840245 L18.8119044,53.668912 L26.1499627,46.3308536 L40.8279544,61.0079078 L73.8500373,27.9848875 L81.1880956,35.3229458 L40.8279544,75.6840245 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,23 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+import './index.css';
+import App from './App';
+import rootReducers from './reducers';
+
+/* eslint-disable no-underscore-dangle */
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+/* eslint-enable */
+
+const store = createStore(rootReducers, composeEnhancers(
+  applyMiddleware(thunk),
+));
+
+ReactDOM.render(
+  <Provider store={store} basename={process.env.BASENAME ? process.env.BASENAME : '/twatch'}>
+    <App />
+  </Provider>,
+  document.getElementById('root'),
+);

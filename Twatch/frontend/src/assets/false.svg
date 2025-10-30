@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>cancel</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD" transform="translate(-1036.000000, -466.000000)" fill="#FF5252" fill-rule="nonzero">
+            <g id="cancel" transform="translate(1036.000000, 466.000000)">
+                <path d="M50,0 C22.3861287,0 0,22.3861287 0,50 C0,77.6138713 22.3861287,100 50,100 C77.6138713,100 100,77.6138713 100,50 C100,22.3861287 77.6141056,0 50,0 Z M77.5770743,64.8490857 L64.8500232,77.5770743 L50,62.7279886 L35.1499768,77.5780118 L22.4229257,64.8490857 L37.2720114,50 L22.4229257,35.1499768 L35.1499768,22.4229257 L50,37.2720114 L64.8500232,22.4229257 L77.5770743,35.1499768 L62.7279886,50 L77.5770743,64.8490857 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

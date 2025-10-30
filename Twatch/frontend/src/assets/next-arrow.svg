@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="39px" height="42px" viewBox="0 0 39 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.1 (67048) - http://www.bohemiancoding.com/sketch -->
+    <title>next</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-19.8%" y="-18.4%" width="139.6%" height="136.8%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="9" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="10" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.807982568   0 0 0 0 0.807982568   0 0 0 0 0.807982568  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Pages" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="HomePage" transform="translate(-775.000000, -690.000000)" fill="#545454" fill-rule="nonzero">
+            <g id="Group-7" transform="translate(530.000000, 450.000000)">
+                <g id="rumour-cards" transform="translate(0.000000, 97.000000)">
+                    <g id="Group" filter="url(#filter-1)">
+                        <g id="top" transform="translate(14.000000, 11.000000)">
+                            <g id="Group-3" transform="translate(2.000000, 138.000000)">
+                                <g id="next" transform="translate(245.620690, 0.000000)">
+                                    <path d="M5.90746133,5.76077959 L0.54926834,0.0999633258 C0.423109198,-0.0333211086 0.220778499,-0.0333211086 0.0946193565,0.0999633258 C-0.0315397855,0.23324776 -0.0315397855,0.447005815 0.0946193565,0.58029025 L5.22429768,5.99968565 L0.0946193565,11.419081 C-0.0315397855,11.5523655 -0.0315397855,11.7661235 0.0946193565,11.899408 C0.156508747,11.9647928 0.239821388,12 0.320753668,12 C0.401685947,12 0.484998588,11.9673076 0.546887979,11.899408 L5.90508097,6.23859171 C6.03124012,6.10782208 6.03124012,5.89154922 5.90746133,5.76077959 Z" id="Shape"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

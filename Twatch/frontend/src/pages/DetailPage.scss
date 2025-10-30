@@ -1,0 +1,314 @@
+:local {
+    .loader {
+        position: fixed;
+        left: 50%;
+        top: 7%;
+        transform: translate(-50%, -50%);
+
+        .message {
+            margin-top: 1rem;
+            color: #6A6A6A;
+        }
+    }
+
+    .message {
+        position: fixed;
+        left: 50%;
+        top: 7%;
+        transform: translate(-50%, -50%);
+        margin-top: 3rem;
+        color: #6A6A6A;
+    }
+
+    .main {
+        display: flex;
+        padding-left: 1.75rem;
+        padding-top: 2em;
+
+        .title {
+            font-size: 1.4rem;
+        }
+    }
+
+    .popover {
+        width: 12rem;
+        margin: 0.5rem 1rem 1rem 1rem;
+        background: white;
+        color: #333333;
+        font-size: 0.9rem;
+        z-index: 999;
+        // box-shadow: 2px 3px 12px #c3c3c3;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+    }
+
+    .content {
+        margin-right: 3rem;
+        width: 100%;
+
+        .section {
+            margin-bottom: 2rem;
+
+            .factChecksContainer {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .title {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+                display: flex;
+
+                img {
+                    margin-left: 1rem;
+                    margin-top: 2px;
+                    width: 1.5rem;
+                    cursor: pointer;
+                }
+            }
+
+            .placeholder {
+                margin-top: 1rem;
+                color: gray;
+                font-size: 1.2rem;
+            }
+
+            .item {
+                font-family: 'PT Sans', sans-serif;
+            }
+        }
+
+        .nav_section {
+            margin-bottom: 2rem;
+
+            .listContainer {
+                margin-top: 0.5rem;
+                margin-bottom: 1rem;
+                display: flex;
+                flex-direction: row;
+
+                .container, .containerSelected {
+                    cursor: pointer;
+                    padding: 0.2rem 0.8rem 0.3rem 0.8rem;
+                    font-size: 0.9rem;
+                    margin-top: 0.8rem;
+                    border-radius: 4px;
+                    transition: 0.3s;
+                    font-family: 'PT Sans', sans-serif;
+                    border: 1px solid transparent;
+                    margin-right: 0.5rem;
+                }
+
+                .containerDisabled {
+                    cursor: not-allowed;
+                    padding: 0.2rem 0.8rem 0.3rem 0.8rem;
+                    font-size: 0.9rem;
+                    margin-right: 0.5rem;
+                    margin-top: 0.8rem;
+                    border-radius: 4px;
+                    transition: 0.3s;
+                    font-family: 'PT Sans', sans-serif;
+                    border: 1px solid transparent;
+                    margin-right: auto;
+                }
+
+                .container:hover, .containerSelected:hover {
+                    transform: translateX(5px);
+                }
+
+                .container {
+                    color: #4A4A4A;
+                    background: whitesmoke;
+                }
+
+                .containerDisabled {
+                    color: rgba(black, 0.2); // black with low opacity
+                    background: rgba(whitesmoke, 0.5); // whitesmoke with lower opacity
+                }
+
+                .containerSelected {
+                    color: white;
+                    background: #1DA1F2;
+                }
+
+            }
+        }
+    }
+
+    .timeline {
+        position: fixed;
+        left: 0.5rem;
+        right: 0.5rem;
+        top: 0.5rem;
+        z-index: 999;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 1px 1px 11px #bfbfbf;
+    }
+
+    .leftArea {
+        justify-content: center;
+        margin-left: 3rem;
+        margin-right: 3rem;
+        margin-bottom: 1rem;
+        margin-top: -1.925rem;
+
+        .desc {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+
+            .descContainer {
+                // padding: 0.2rem 0.8rem 0.3rem 0.8rem;
+                font-size: 0.9rem;
+                margin-right: 0.5rem;
+                margin-top: 0.5rem;
+                border-radius: 4px;
+                font-family: 'PT Sans', sans-serif;
+                border: 1px solid transparent;
+                width: 12rem;
+                // background: #eaeaea;
+                color: #424242;
+                display: none;
+            }
+
+        }
+        
+        .listContainer {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+
+            .container, .containerSelected {
+                cursor: pointer;
+                padding: 0.2rem 0.8rem 0.3rem 0.8rem;
+                font-size: 0.9rem;
+                margin-right: 0.5rem;
+                margin-top: 0.8rem;
+                border-radius: 4px;
+                transition: 0.3s;
+                font-family: 'PT Sans', sans-serif;
+                border: 1px solid transparent;
+                margin-right: auto;
+            }
+
+            .containerDisabled {
+                cursor: not-allowed;
+                padding: 0.2rem 0.8rem 0.3rem 0.8rem;
+                font-size: 0.9rem;
+                margin-right: 0.5rem;
+                margin-top: 0.8rem;
+                border-radius: 4px;
+                transition: 0.3s;
+                font-family: 'PT Sans', sans-serif;
+                border: 1px solid transparent;
+                margin-right: auto;
+            }
+
+            .container:hover, .containerSelected:hover {
+                transform: translateX(5px);
+            }
+
+            .container {
+                color: #4A4A4A;
+                background: whitesmoke;
+            }
+
+            .containerDisabled {
+                color: rgba(black, 0.2); // black with low opacity
+                background: rgba(whitesmoke, 0.5); // whitesmoke with lower opacity
+            }
+
+            .containerSelected {
+                color: white;
+                background: #1DA1F2;
+            }
+        }
+
+        .keywordContainer {
+            margin-right: 1rem;
+        }
+
+        .optionContainer {
+            margin-top: 2rem;
+
+            .animation {
+                margin-top: 2rem;
+            }
+
+            .animationControl {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                transition: 0.3s;
+                margin-top: 1rem;
+                color: #4A4A4A;
+    
+                img {
+                    width: 1.5rem;
+                    height: 1.5rem;
+                    margin-right: 0.8rem;
+                }
+            }
+
+            .date {
+                white-space: nowrap;
+                transition: 0.3s;
+                margin-top: 2rem;
+                display: flex;
+                flex-direction: column;
+
+                .time {
+                    margin-top: 1rem;
+                    font-family: 'PT Sans', sans-serif;
+                    // font-size: 0.9rem;
+                    color: #4A4A4A;
+
+                    .top {
+                        display: flex;
+                    }
+
+                    .bottom {
+                        margin-top: 0.5rem;
+
+                        .input {
+                            display: flex;
+                            margin-bottom: 0.5rem;
+                            align-items: center;
+
+                            > div {
+                                width: 3.6rem;
+                            }
+
+                            .text {
+                                margin-left: 0.4rem;
+                            }
+                        }
+
+                    }
+
+                    .bg {
+                        background: #dedede;
+                        margin-left: 0.5rem;
+                        width: 1.3rem;
+                        height: 1.3rem;
+                        display: flex;
+                        align-items: center;
+                        cursor: pointer;
+                        border-radius: 1rem;
+        
+                        img {
+                            width: 0.5rem;
+                            height: 0.5rem;
+                            transition: 0.3s;
+                            margin: 0 auto;
+                        }
+                    }
+                }
+            }
+        }
+
+        
+    }
+
+}

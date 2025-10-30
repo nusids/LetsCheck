@@ -1,0 +1,296 @@
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as numeral from 'numeral';
+import PropTypes from 'prop-types';
+import {
+  ArcSeries, XYPlot,
+} from 'react-vis';
+import TweetCard from './TweetCard';
+import { fetchTweetsByIds } from '../actions/tweetAction';
+import { fetchUsersByIds } from '../actions/userAction';
+import * as styles from './TIBDetails.scss';
+
+const DISPLAY_MODE = {
+  overall: 0,
+  mouseOverTweet: 1,
+  inCluster: 2,
+  mouseOverRetweet: 3,
+};
+
+class TIBDetails extends Component {
+  constructor(props) {
+    super(props);
+
+    this.mode = 0;
+    this.graphData = [];
+    this.graphNumbers = [];
+  }
+
+  componentDidMount() {
+    this.updateMode();
+  }
+
+  componentDidUpdate() {
+    this.updateMode();
+    this.updateData();
+  }
+
+  updateMode() {
+    const {
+      expandIndex, showPinOnly, pinIndex, mouseOverNode,
+    } = this.props;
+
+    if (mouseOverNode) {
+      if (mouseOverNode.info.id_str && mouseOverNode.info.id_str.toLowerCase() === 'retweets') {
+        this.mode = DISPLAY_MODE.mouseOverRetweet;
+      } else {
+        this.mode = DISPLAY_MODE.mouseOverTweet;
+      }
+    } else if (expandIndex < 0 && !showPinOnly) {
+      this.mode = DISPLAY_MODE.overall;
+    } else if (expandIndex >= 0 || (showPinOnly && pinIndex >= 0)) {
+      this.mode = DISPLAY_MODE.inCluster;
+    }
+  }
+
+  updateData() {
+    const {
+      mouseOverNode, tweetInfo, getTweets, getUsers, userInfo, tweetUserMap, allRootNodes, expandIndex,
+    } = this.props;
+
+    const tweetIds = [];
+    const userIds = [];
+
+    if (expandIndex >= 0 && allRootNodes[expandIndex]) {
+      const tweetId = allRootNodes[expandIndex].info.id_str;
+      const userId = tweetUserMap.get(tweetId);
+      if (!tweetInfo[tweetId]) {
+        tweetIds.push(tweetId);
+      }
+      if (!userInfo[userId]) {
+        userIds.push(userId);
+      }
+    }
+
+    if (this.mode === DISPLAY_MODE.mouseOverTweet) {
+      const tweetId = mouseOverNode.info.id_str;
+      const userId = tweetUserMap.get(tweetId);
+
+      if (!tweetInfo[tweetId]) {
+        tweetIds.push(tweetId);
+      }
+
+      if (!userInfo[userId]) {
+        userIds.push(userId);
+      }
+    }
+
+    if (tweetIds.length > 0) {
+      getTweets(tweetIds);
+    }
+
+    if (userIds.length > 0) {
+      getUsers(userIds);
+    }
+  }
+
+  updateGraphData() {
+    const { allRootNodes, expandIndex } = this.props;
+
+    if (expandIndex < 0 || !allRootNodes[expandIndex]) {
+      this.graphData = [];
+      return;
+    }
+
+    const root = allRootNodes[expandIndex];
+    const savedFollowersPercentage = root.info.savedFollowersCount / root.info.allFollowersCount;
+    const outOfDeadlineFollowersPercentage = root.info.outOfDeadlineFollowersCount / root.info.allFollowersCount;
+    const affectedFollowersPercentage = 1 - savedFollowersPercentage - outOfDeadlineFollowersPercentage;
+    const affectedFollowers = root.info.allFollowersCount - root.info.savedFollowersCount - root.info.outOfDeadlineFollowersCount;
+    const savedTweetsPercentage = root.info.savedTweetCount / root.info.count;
+    const outOfDeadlineTweetsPercentage = root.info.outOfDeadlineTweetCount / root.info.count;
+    const affectedTweetsPercentage = 1 - savedTweetsPercentage - outOfDeadlineTweetsPercentage;
+    const affectedTweets = root.info.count - root.info.savedTweetCount - root.info.outOfDeadlineTweetCount;
+
+    const follwersPercentages = [affectedFollowersPercentage, savedFollowersPercentage, outOfDeadlineFollowersPercentage];
+    const tweetsPercentages = [affectedTweetsPercentage, savedTweetsPercentage, outOfDeadlineTweetsPercentage];
+    this.graphNumbers = [
+      affectedFollowers,
+      root.info.savedFollowersCount,
+      root.info.outOfDeadlineFollowersCount,
+      affectedTweets,
+      root.info.savedTweetCount,
+      root.info.outOfDeadlineTweetCount,
+    ];
+    const correspondingColor = ['#FF5252', '#1DA1F2', '#989898'];
+
+    const followersData = [];
+    const tweetsData = [];
+
+    let currentAngle = 0;
+    follwersPercentages.forEach((x, i) => {
+      const endAngle = 2 * Math.PI * x + currentAngle;
+      followersData.push({
+        angle0: currentAngle,
+        angle: endAngle,
+        radius0: 2,
+        radius: 2.6,
+        color: correspondingColor[i],
+      });
+
+      currentAngle = endAngle;
+    });
+
+    currentAngle = 0;
+    tweetsPercentages.forEach((x, i) => {
+      const endAngle = 2 * Math.PI * x + currentAngle;
+      tweetsData.push({
+        angle0: currentAngle,
+        angle: endAngle,
+        radius0: 0.9,
+        radius: 1.5,
+        color: correspondingColor[i],
+      });
+
+      currentAngle = endAngle;
+    });
+
+    this.graphData = followersData.concat(tweetsData);
+  }
+
+  render() {
+    const {
+      userInfo, tweetInfo, mouseOverNode, tweetUserMap, expandIndex, allRootNodes, isHorizontal,
+    } = this.props;
+    let currentTweetComponent = null;
+    let sourceTweetComponent = null;
+
+    this.updateMode();
+    this.updateGraphData();
+
+    const shouldShowArc = expandIndex >= 0;
+
+    if (shouldShowArc && allRootNodes[expandIndex]) {
+      const tweetId = allRootNodes[expandIndex].info.id_str;
+      const userId = tweetUserMap.get(tweetId);
+      const tweetData = tweetInfo[tweetId];
+      const userData = userInfo[userId];
+
+      const style = isHorizontal ? { marginLeft: '1rem', marginRight: '0.5rem' } : { marginRight: '0.5rem' };
+
+      sourceTweetComponent = (
+        <div className={styles.singleTweetContainer} style={style}>
+          <div className={styles.title}>Source Tweet</div>
+          <TweetCard data={tweetData} user={userData} withShadow />
+        </div>
+      );
+    }
+
+    const arcComponent = shouldShowArc ? (
+      <div className={styles.graphContainer}>
+        <div className={styles.chartContainer}>
+          <div className={styles.title}>Chart</div>
+          <XYPlot
+            height={200}
+            width={200}
+            animation
+            xDomain={[-3, 3]}
+            yDomain={[-3, 3]}
+          >
+            <ArcSeries
+              data={this.graphData}
+              radiusDomain={[0, 3]}
+              animation
+              colorType="literal"
+            />
+          </XYPlot>
+        </div>
+        <div className={styles.explanation}>
+          <div className={styles.title}>Numbers</div>
+          <div className={styles.content}>
+            <div className={styles.section}>
+              <div className={styles.subTitle}>#Users - outer ring</div>
+              <div className={styles.text}>
+                <span className={styles.affectedBlock}>{numeral(this.graphNumbers[0]).format('0a')}</span>
+                <span className={styles.normalBlock}>were affected,</span>
+                <span className={styles.savedBlock}>{numeral(this.graphNumbers[1]).format('0a')}</span>
+                <span className={styles.normalBlock}>were saved,</span>
+                <span className={styles.outOfDeadlineBlock}>{numeral(this.graphNumbers[2]).format('0a')}</span>
+                <span className={styles.normalBlock}>were beyond the deadline.</span>
+              </div>
+            </div>
+            <div className={styles.section}>
+              <div className={styles.subTitle}>#Tweets - inner ring</div>
+              <div className={styles.text}>
+                <span className={styles.affectedBlock}>{numeral(this.graphNumbers[3]).format('0a')}</span>
+                <span className={styles.normalBlock}>were affected,</span>
+                <span className={styles.savedBlock}>{numeral(this.graphNumbers[4]).format('0a')}</span>
+                <span className={styles.normalBlock}>were saved,</span>
+                <span className={styles.outOfDeadlineBlock}>{numeral(this.graphNumbers[5]).format('0a')}</span>
+                <span className={styles.normalBlock}>were beyond the deadline.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null;
+
+    if (this.mode === DISPLAY_MODE.mouseOverTweet) {
+      const tweetId = mouseOverNode.info.id_str;
+      const userId = tweetUserMap.get(tweetId);
+      const tweetData = tweetInfo[tweetId];
+      const userData = userInfo[userId];
+
+      currentTweetComponent = (
+        <div className={styles.singleTweetContainer} style={{ marginLeft: '0.5rem' }}>
+          <div className={styles.title}>Current Tweet</div>
+          <TweetCard data={tweetData} user={userData} withShadow />
+        </div>
+      );
+    }
+
+    const bottom = (
+      <div className={styles.bottom}>
+        {sourceTweetComponent}
+        {currentTweetComponent}
+      </div>
+    );
+
+    const style = isHorizontal ? { display: 'flex' } : null;
+    return (
+      <div className={styles.container} style={style}>
+        {arcComponent}
+        {bottom}
+      </div>
+    );
+  }
+}
+
+TIBDetails.propTypes = {
+  allRootNodes: PropTypes.array.isRequired,
+  expandIndex: PropTypes.number.isRequired,
+  showPinOnly: PropTypes.bool.isRequired,
+  pinIndex: PropTypes.number.isRequired,
+  mouseOverNode: PropTypes.object,
+  getTweets: PropTypes.func.isRequired,
+  getUsers: PropTypes.func.isRequired,
+  userInfo: PropTypes.object.isRequired,
+  tweetInfo: PropTypes.object.isRequired,
+  tweetUserMap: PropTypes.object.isRequired,
+  isHorizontal: PropTypes.bool.isRequired,
+};
+
+TIBDetails.defaultProps = {
+  mouseOverNode: null,
+};
+
+export default connect(
+  state => ({
+    tweetInfo: state.tweetInfo,
+    userInfo: state.userInfo,
+  }),
+  dispatch => ({
+    getTweets: ids => dispatch(fetchTweetsByIds(ids)),
+    getUsers: ids => dispatch(fetchUsersByIds(ids)),
+  }),
+)(TIBDetails);

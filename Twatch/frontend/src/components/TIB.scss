@@ -1,0 +1,207 @@
+:global {
+    svg polygon {
+        stroke-dasharray: none;
+    }
+}
+:local { 
+    .nodeLabel {
+        color: #383838;
+        text-shadow: -1px 3px 19px #ffffff;
+        font-family: 'Ubuntu Condensed', sans-serif;
+        background: rgba(255,255,255,0.8);
+        display: inline;
+        padding: 2px 4px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        box-shadow: 0 0 2px #888888;
+        margin-left: 2px;
+    }
+
+    .modalContainer {
+        height: calc(100vh - 120px);
+        font-family: 'Ubuntu Condensed', sans-serif;
+        color: black;
+        font-size: 1rem;
+        overflow: auto;
+
+        .modalTreeContainer {
+            height: 65%;
+        }
+
+        .infoContainer {
+            height: 35%;
+            padding-top: 1rem;
+        }
+    }
+
+    .container {
+        width: 100%;
+
+        .title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+
+            .slider {  
+                margin-left: 2rem;
+                flex-grow: 1;
+                max-width: 20rem;
+            }
+        }
+
+        .hintContainer {    
+            background: white;
+            box-shadow: 1px 1px 9px 0px #b7b7b7;
+            color: #545454;
+            padding: 2px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+            font-size: 1rem;
+            position: relative;
+            bottom: -15px;
+            right: 110%;
+        }
+        
+        .topContainer {
+            font-size: 1.1rem;
+
+            .chartContainer {
+                margin-left: -2.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        .bottomContainer {
+            display: flex;
+            margin-top: 1rem;
+        }
+
+        .graphContainer {
+            width: 36rem;
+            flex-shrink: 0;
+
+            .switch {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                font-size: 1rem;
+                color: #4a4a4a;
+
+                button {
+                    margin-left: 0.5rem;
+                }
+            }
+        }
+
+        .detailsContainer {
+            margin-left: 2rem;
+            flex-grow: 0;
+        }
+
+        .treeWrapper {
+            width: 100%;
+            height: 20rem;
+
+            .loader {    
+                text-align: center;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+            }
+        }
+
+        .entry {
+            background: white;
+            margin-bottom: 0.6rem;
+            box-shadow: 2px 3px 7px #d8d8d8;
+            border-radius: 0.2rem;
+            cursor: pointer;
+            user-select: none;
+
+            .title {
+                font-size: 1rem;
+                margin: 0;
+                z-index: 2;
+            }
+
+            .top {
+                position: relative;
+                display: flex;
+                align-items: center;
+                font-family: 'PT Sans', sans-serif;
+                padding: 0.5rem 0.8rem 0.5rem 1rem;
+                border-radius: 0.2rem 0.2rem 0 0 ;
+                transition: 0.3s ease-in-out;
+
+                .bg {        
+                    position: absolute;
+                    width: 100%;
+                    height: 10%;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    display: flex;
+                    border-radius: 0.2rem;
+
+                    div {
+                        height: 100%;
+                        z-index: 1;
+                        opacity: 0.8;
+                    }
+
+                    .saved {
+                        background: #1DA1F2;
+                    }
+
+                    .affected {
+                        background: #FF5252;
+                    }
+
+                    .dontcare {
+                        background: #4A4A4A;
+                    }
+                }
+                
+                .left {
+                    width: 0.5rem;
+                    transition: 0.3s ease-in-out;
+                    margin-right: 1rem;
+                    z-index: 2;
+                }
+
+                .right {
+                    margin-left: auto;
+                    display: flex;
+                    color: #afafaf;
+
+                    .fullScreen {
+                        transition: 0.3s ease-in-out;
+                        z-index: 2;
+                        font-size: 1.2rem;
+                        margin-right: 0.6rem;
+                    }
+    
+                    .fullScreen:hover {
+                        color: #5991CA;
+                    }
+    
+                    .pin {
+                        transition: 0.3s ease-in-out;
+                        font-size: 1.2rem;
+                    }
+    
+                    .pin:hover {
+                        color: #5991CA;
+                    }
+                }
+
+            }
+
+            .top:hover {
+                background: #f5f5f5;
+            }
+        }
+    }
+}

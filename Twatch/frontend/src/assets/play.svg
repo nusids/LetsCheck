@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>play-button</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD" transform="translate(-241.000000, -695.000000)">
+            <g id="play-button" transform="translate(241.000000, 695.000000)">
+                <circle id="Oval" fill="#1DA1F2" cx="30" cy="30" r="30"></circle>
+                <g id="Group" transform="translate(21.724138, 13.448276)" fill="#FFFFFF">
+                    <polygon id="Path" points="23.7931034 16.5517241 1.03448276 32.0689655 1.03448276 16.8341379 1.03448276 1.03448276"></polygon>
+                    <path d="M1.03448276,33.1034483 C0.868965517,33.1034483 0.702413793,33.0641379 0.55137931,32.9834483 C0.212068966,32.8044828 0,32.4527586 0,32.0689655 L0,1.03448276 C0,0.650689655 0.212068966,0.298965517 0.55137931,0.12 C0.890689655,-0.06 1.30034483,-0.0351724138 1.61793103,0.18 L24.3765517,15.6972414 C24.657931,15.8896552 24.8275862,16.2093103 24.8275862,16.5517241 C24.8275862,16.8941379 24.657931,17.2137931 24.3755172,17.4062069 L1.61689655,32.9234483 C1.44206897,33.0424138 1.23827586,33.1034483 1.03448276,33.1034483 Z M2.06896552,2.99275862 L2.06896552,30.1117241 L21.9568966,16.5517241 L2.06896552,2.99275862 Z" id="Shape" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,13 @@
+{
+  "name": "Twatch",
+  "version": "1.0.0",
+  "description": "Twatch",
+  "scripts": {
+    "postinstall": "cd backend && yarn install; cd ../frontend && yarn install",
+    "build": "cd frontend && yarn build",
+    "build-ci": "cd frontend && yarn build-ci",
+    "test": "cd frontend && yarn test"
+  },
+  "author": "",
+  "license": "ISC"
+}

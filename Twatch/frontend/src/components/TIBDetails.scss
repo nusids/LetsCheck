@@ -1,0 +1,73 @@
+:local {
+    .container {
+        .bottom {
+            display: flex;
+        }
+        
+        .title {
+            margin-bottom: 1rem;
+            color: white;
+            background: #545c61;
+            padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+            border-radius: 0.2rem;
+            font-size: 1.1rem;
+            user-select: none;
+        }
+
+        .singleTweetContainer {
+            width: 14rem;
+        }
+
+        .graphContainer {
+            display: flex;
+
+            .explanation {
+                margin-left: 1rem;
+
+                .section:nth-child(1) {
+                    margin-bottom: 1rem;
+                }
+
+                .text {
+                    color: #4A4A4A;
+                    font-family: 'PT-Sans', sans-serif;
+                    font-size: 0.9rem;
+                    user-select: none;
+                    max-width: 20rem;
+                }
+
+                span {
+                    transition: 0.3s ease-in-out;
+                }
+
+                span:nth-child(3n + 0), span:nth-child(3n + 2) {
+                    margin: 0 0.15rem;
+                }
+
+                span:nth-child(3n + 1) {
+                    margin-right: 0.15rem;
+                }
+
+                .affectedBlock,.savedBlock, .outOfDeadlineBlock {
+                    padding: 0.15rem 0.4rem;
+                    border-radius: 0.2rem;
+                }
+
+                .affectedBlock {
+                    color: white;
+                    background: #FF5252;
+                }
+
+                .savedBlock {
+                    color: white;
+                    background: #1DA1F2;
+                }
+
+                .outOfDeadlineBlock {
+                    color: white;
+                    background: #989898;
+                }
+            }
+        }
+    }
+}

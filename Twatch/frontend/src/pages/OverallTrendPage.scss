@@ -1,0 +1,61 @@
+:local {
+    .loader {
+        position: fixed;
+        left: 50%;
+        top: 7%;
+        transform: translate(-50%, -50%);
+
+        .message {
+            margin-top: 1rem;
+            color: #6A6A6A;
+        }
+    }
+
+    .message {
+        position: fixed;
+        left: 50%;
+        top: 7%;
+        transform: translate(-50%, -50%);
+        margin-top: 3rem;
+        color: #6A6A6A;
+    }
+
+    .main {
+        padding-top: 2rem;
+        padding-left: 1.75rem;
+        padding-right: 1.75rem;
+        overflow: hidden;
+
+        .title {
+            font-size: 18px;
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+
+        .chart {
+            width: 95%;
+        }
+    }
+
+    .popover {
+        width: 12rem;
+        margin: 0.5rem 1rem 1rem 1rem;
+        background: white;
+        color: #333333;
+        font-size: 0.9rem;
+        z-index: 999;
+        // box-shadow: 2px 3px 12px #c3c3c3;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+    }
+
+    .timeline {
+        position: fixed;
+        left: 0.5rem;
+        right: 0.5rem;
+        top: 0.5rem;
+        z-index: 999;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 1px 1px 11px #bfbfbf;
+    }
+}

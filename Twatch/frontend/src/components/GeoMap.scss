@@ -1,0 +1,23 @@
+:local {
+    .mapContainer {
+        width: 100%;
+        height: 400px;
+        margin-top: 1rem;
+
+        .popup {
+            position: relative;
+        }
+    }
+
+    .dateContainer {
+        text-align: right;
+        padding: 0.2rem;
+        font-size: 1.2rem;
+    }
+}
+
+:global {
+    .ant-popover-inner-content {
+        padding: 0;
+    }
+}

@@ -1,0 +1,33 @@
+:local {
+    .card {    
+        width: 14rem;
+        text-decoration: none;
+        -webkit-transition: 0.4s ease-in-out;
+        transition: 0.4s ease-in-out;
+        cursor: pointer;
+        position: relative;
+        color: black;
+        font-size: 1rem;
+        font-family: 'PT-Sans', sans-serif;
+
+        .control {
+            font-size: 1.1rem;
+            font-family: 'Ubuntu Condensed', sans-serif;
+        }
+    }
+
+    .closeButton {
+        position: absolute;
+        right: 0;
+        padding: 0.4rem 0.4rem;
+        top: 0;
+        font-size: 0.9rem;
+        color: #2b2b2b;
+    }
+
+    .control {
+        display: flex;
+        justify-content: space-between;
+        color: #4A4A4A;
+    }
+}

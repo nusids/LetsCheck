@@ -1,0 +1,57 @@
+:local {
+    .hintContainer {
+        .buttonContainer {
+            position: absolute;
+            top: calc(30px - 12px);
+            z-index: 1;
+            left: calc(50% - 10px);
+            background: #ffffff;
+            height: 24px;
+            width: 24px;
+            box-shadow: 1px 2px 10px 2px #c5c5c5;
+            border-radius: 16px;
+            display: flex;
+            transition: 0.3s;
+            cursor: pointer;
+            pointer-events: all;
+
+            img {
+                height: 10px;
+                width: 10px;
+                margin: auto;
+            }
+        }
+
+        .buttonContainer:hover {
+            transform: scale(1.2, 1.2);
+        }
+
+        .textContainer {
+            background: white;
+            box-shadow: 1px 1px 9px 0px #b7b7b7;
+            color: #545454;
+            padding: 6px 10px;
+            border-radius: 3px;
+            white-space: nowrap;
+            position: relative;
+            top: 30px;
+            left: -50%;
+        }
+
+        .indicator {    
+            height: 280px;
+            border-left: 2px dotted #afafaf;
+        }
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 10px;
+        background: #e85340;
+        color: transparent;
+        right: 50%;
+        top: 6px;
+        position: relative;
+    }
+}

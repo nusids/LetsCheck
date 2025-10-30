@@ -1,0 +1,130 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Icon } from 'antd';
+import { fetchTweetsByIds } from '../actions/tweetAction';
+import { fetchUsersByIds } from '../actions/userAction';
+import previousImg from '../assets/previous-arrow.svg';
+import nextImg from '../assets/next-arrow.svg';
+import TweetCard from './TweetCard';
+import * as styles from './GeoMapTweetCard.scss';
+
+class GeoMapTweetCard extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      tweetIndex: 0,
+    };
+
+    this.onNextClicked = this.onNextClicked.bind(this);
+    this.onPreviousClicked = this.onPreviousClicked.bind(this);
+  }
+
+  componentDidMount() {
+    this.updateData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { tweetIndex } = this.state;
+    const { tweetIds } = this.props;
+    if (prevState.tweetIndex !== tweetIndex || prevProps.tweetIds[0] !== tweetIds[0]) {
+      this.updateData();
+    }
+  }
+
+  onProfileClicked() {
+    const { profileUrl } = this.state;
+    window.open(profileUrl, '_blank');
+  }
+
+  onNextClicked() {
+    const { tweetIndex } = this.state;
+    const { tweetIds } = this.props;
+
+    if (tweetIndex + 1 >= tweetIds.length) {
+      this.setState({
+        tweetIndex: 0,
+      });
+    } else {
+      this.setState({
+        tweetIndex: tweetIndex + 1,
+      });
+    }
+  }
+
+  onPreviousClicked() {
+    const { tweetIndex } = this.state;
+
+    if (tweetIndex === 0) {
+      return;
+    }
+
+    this.setState({
+      tweetIndex: Math.max(0, tweetIndex - 1),
+    });
+  }
+
+  updateData() {
+    const {
+      getTweets, tweetIds, tweetInfo, eventName, getUsers, userInfo,
+    } = this.props;
+    const { tweetIndex } = this.state;
+    const tweetId = tweetIds[tweetIndex];
+
+    if (!tweetInfo[tweetId]) {
+      getTweets(eventName, [tweetId]);
+    } else {
+      const tweet = tweetInfo[tweetId];
+
+      if (!userInfo[tweet.user.id_str]) {
+        getUsers([tweet.user.id_str]);
+      }
+    }
+  }
+
+  render() {
+    const {
+      tweetInfo, userInfo, tweetIds, onClose,
+    } = this.props;
+    const { tweetIndex } = this.state;
+
+    const tweetData = tweetInfo[tweetIds[tweetIndex]];
+    const tweet = <TweetCard withShadow={false} data={tweetData} user={tweetData && tweetData.user ? userInfo[tweetData.user.id_str] : null} />;
+
+    return (
+      <div className={styles.card}>
+        <div className={styles.closeButton} onClick={onClose}>
+          <Icon type="close" />
+        </div>
+        {tweet}
+        <div className={styles.control}>
+          <img className={styles.icon} src={previousImg} onClick={this.onPreviousClicked} alt="Previous" />
+          <div className={styles.desc}>{`${tweetIndex + 1} / ${tweetIds.length}`}</div>
+          <img className={styles.icon} src={nextImg} onClick={this.onNextClicked} alt="Next" />
+        </div>
+      </div>
+    );
+  }
+}
+
+GeoMapTweetCard.propTypes = {
+  tweetIds: PropTypes.array.isRequired,
+  getTweets: PropTypes.func.isRequired,
+  getUsers: PropTypes.func.isRequired,
+  eventName: PropTypes.string.isRequired,
+  tweetInfo: PropTypes.object.isRequired,
+  userInfo: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+export default connect(
+  state => ({
+    tweetInfo: state.tweetInfo,
+    userInfo: state.userInfo,
+  }),
+  dispatch => ({
+    getTweets: (eventName, ids) => dispatch(fetchTweetsByIds(eventName, ids)),
+    getUsers: ids => dispatch(fetchUsersByIds(ids)),
+  }),
+)(GeoMapTweetCard);

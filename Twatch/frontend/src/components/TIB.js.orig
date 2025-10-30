@@ -1,0 +1,785 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Tree } from 'react-d3-tree';
+import { SizeMe } from 'react-sizeme';
+import Loader from 'react-loader-spinner';
+import SmoothCollapse from 'react-smooth-collapse';
+import * as numeral from 'numeral';
+import {
+  FlexibleWidthXYPlot, XAxis, VerticalRectSeries, Hint,
+} from 'react-vis';
+import moment from 'moment';
+import {
+  Slider, Modal, Icon, Popover, Radio, Switch,
+} from 'antd';
+import TIBLabel from './TIBLabel';
+import TIBDetails from './TIBDetails';
+import expandImg from '../assets/expand.svg';
+import 'antd/lib/slider/style/css';
+import 'antd/lib/modal/style/css';
+import 'antd/lib/popover/style/css';
+import 'antd/lib/radio/style/css';
+import 'antd/lib/switch/style/css';
+import * as styles from './TIB.scss';
+
+const AFFECTED_COLOR = '#FF5252';
+const SAVED_COLOR = '#1DA1F2';
+const OUT_OF_DEADLINE_COLOR = '#989898';
+const OVERALL_INFO_BAR_NORMAL_COLOR = '#6A93B1';
+const OVERALL_INFO_BAR_SELECTED_COLOR = AFFECTED_COLOR;
+const OVERALL_INFO_BAR_MOUSEOVER_COLOR = '#344552';
+
+const getNodeShape = (childrenLength, isSaved, isRetweet, isOutOfDeadline) => {
+  let fill = AFFECTED_COLOR;
+  if (isSaved) {
+    fill = SAVED_COLOR;
+  } else if (isOutOfDeadline) {
+    fill = OUT_OF_DEADLINE_COLOR;
+  }
+
+  const size = 10;
+
+  if (isRetweet) {
+    return {
+      shape: 'polygon',
+      shapeProps: {
+        fill,
+        strokeWidth: 1,
+        points: '-2,-10 -12,10 8,10',
+        height: 20,
+        width: 20,
+      },
+    };
+  }
+
+  if (childrenLength === 0) {
+    return {
+      shape: 'circle',
+      shapeProps: {
+        fill,
+        r: size,
+        strokeWidth: 1,
+      },
+    };
+  }
+  return {
+    shape: 'rect',
+    shapeProps: {
+      fill,
+      x: -size,
+      y: -size,
+      width: size * 2,
+      height: size * 2,
+      strokeWidth: 1,
+    },
+  };
+};
+
+const treeStyle = {
+  links: {
+    stroke: '#979797',
+    strokeWidth: 2,
+  },
+};
+
+const TIME_FORMAT = Object.freeze({
+  hourAndMin: 0,
+  hour: 1,
+  day: 2,
+});
+const OVERALL_INFO_CHART_HEIGHT = 300;
+
+const getTimeDiffInFormat = (later, earlier, format) => {
+  const hourDiff = later.diff(earlier, 'hours');
+  switch (format) {
+    case TIME_FORMAT.hourAndMin:
+      return `${hourDiff}:${numeral(later.diff(earlier, 'minutes') % 60).format('00')}`;
+    case TIME_FORMAT.hour:
+      return `${hourDiff}`;
+    case TIME_FORMAT.day:
+      return `${later.diff(earlier, 'days')}`;
+    default:
+      return null;
+  }
+};
+
+const generateRecursiveStructure = (root, currentTime, timeFormat, isSaved, truthCampaignNodes, userFollowersMap, tweetUserMap) => {
+  const nodes = [];
+
+  root.reply_structure
+    .forEach((item) => {
+      const isChildSaved = isSaved || truthCampaignNodes.has(item.id_str);
+      const currentUserFollowersCount = userFollowersMap.get(tweetUserMap.get(item.id_str));
+      const children = generateRecursiveStructure(item, currentTime, timeFormat, isChildSaved, truthCampaignNodes, userFollowersMap, tweetUserMap);
+      const isOutOfDeadline = currentTime > 0 && item.unix > currentTime;
+      const outOfDeadlineTweetCount = children.reduce(
+        (sum, current) => sum + current.info.outOfDeadlineTweetCount,
+        isOutOfDeadline ? 1 : 0,
+      );
+      const outOfDeadlineFollowersCount = children.reduce(
+        (sum, current) => sum + current.info.outOfDeadlineTweetCount,
+        isOutOfDeadline ? currentUserFollowersCount : 0,
+      );
+      const savedTweetCount = children.reduce(
+        (sum, current) => sum + current.info.savedTweetCount,
+        isChildSaved ? 1 : 0,
+      );
+      const savedFollowersCount = children.reduce(
+        (sum, current) => sum + current.info.savedFollowersCount,
+        isChildSaved ? currentUserFollowersCount : 0,
+      );
+      const allFollowersCount = children.reduce(
+        (sum, current) => sum + current.info.allFollowersCount,
+        currentUserFollowersCount,
+      );
+
+      nodes.push({
+        name: '',
+        nodeSvgShape: getNodeShape(children.length, isChildSaved, false, isOutOfDeadline),
+        info: {
+          id_str: item.id_str,
+          isSaved: isChildSaved,
+          time: getTimeDiffInFormat(moment.unix(item.unix), moment.unix(root.unix), timeFormat),
+          count: children.reduce((sum, current) => sum + current.info.count, 1),
+          allFollowersCount,
+          outOfDeadlineTweetCount,
+          outOfDeadlineFollowersCount,
+          savedTweetCount,
+          savedFollowersCount,
+        },
+        children,
+      });
+    });
+
+  // add retweets
+  if (root.children && root.children.length > 0) {
+    const outOfDeadlineTweets = root.children.filter(x => currentTime > 0 && x.unix > currentTime);
+    const allFollowersCount = root.children.reduce((sum, current) => sum + current.user_followers_count, 0);
+
+    nodes.push({
+      name: '',
+      nodeSvgShape: getNodeShape(0, isSaved, true),
+      info: {
+        id_str: 'retweets',
+        time: `${root.children.length} retweets`,
+        count: root.children.length,
+        allFollowersCount,
+        outOfDeadlineTweetCount: outOfDeadlineTweets.length,
+        outOfDeadlineFollowersCount: outOfDeadlineTweets.reduce((sum, current) => sum + current.user_followers_count, 0),
+        savedTweetCount: isSaved ? root.children.length : 0,
+        savedFollowersCount: isSaved ? allFollowersCount : 0,
+        isRetweet: true,
+      },
+    });
+  }
+
+  return nodes;
+};
+
+class TIB extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      expandIndex: -1,
+      enlargeIndex: -1,
+      pinIndex: -1,
+      showPinOnly: false,
+      isExpansionAnimating: false,
+      currentTime: -1,
+      timeFormat: TIME_FORMAT.hour,
+      mouseOverThread: null,
+      mouseOverNode: null,
+    };
+
+    window.addEventListener('resize', this.updateWindowWidth.bind(this));
+
+    this.minTime = -1;
+    this.maxTime = -1;
+    this.allRootNodes = [];
+    this.truthCampaignNodes = new Set();
+    this.windowWidth = window.innerWidth;
+    this.onEntryExpandButtonClicked = this.onEntryExpandButtonClicked.bind(this);
+    this.onEntryPinButtonClicked = this.onEntryPinButtonClicked.bind(this);
+    this.onExpansionChangeEnd = this.onExpansionChangeEnd.bind(this);
+    this.onOverallInfoSeriesMouseOver = this.onOverallInfoSeriesMouseOver.bind(this);
+    this.onOverallInfoSeriesMouseOut = this.onOverallInfoSeriesMouseOut.bind(this);
+    this.onOverallInfoSeriesMouseClick = this.onOverallInfoSeriesMouseClick.bind(this);
+    this.onSliderValueChange = this.onSliderValueChange.bind(this);
+    this.onEntryEnlargeButtonClicked = this.onEntryEnlargeButtonClicked.bind(this);
+    this.onEntryEnlargeClose = this.onEntryEnlargeClose.bind(this);
+    this.onTimeFormatChange = this.onTimeFormatChange.bind(this);
+    this.onShowPinnedSwitchChange = this.onShowPinnedSwitchChange.bind(this);
+    this.onMouseOutNode = this.onMouseOutNode.bind(this);
+    this.onMouseOverNode = this.onMouseOverNode.bind(this);
+    this.onMouseClickNode = this.onMouseClickNode.bind(this);
+  }
+
+  componentDidMount() {
+    const { onMaxDeadLineCalculated, selectedSourceTweetId } = this.props;
+
+    // this.preprocessOverallThreadInfo();
+    // this.updateData();
+
+    const diffDay = moment.unix(this.maxTime).diff(moment.unix(this.minTime), 'days');
+    const diffHour = moment.unix(this.maxTime).diff(moment.unix(this.minTime), 'hours') % 24;
+    onMaxDeadLineCalculated(diffDay, diffHour);
+
+    if (selectedSourceTweetId) {
+      // const expandIndex = this.allRootNodes.findIndex(x => x.info.id_str === selectedSourceTweetId);
+      // this.setState({
+      //   expandIndex,
+      //   showPinOnly: true,
+      //   pinIndex: expandIndex,
+      // });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { currentTime, timeFormat } = this.state;
+    const { data, deadline, isDataProcessed } = this.props;
+
+    if (!isDataProcessed || !data || data.length === 0) {
+      return;
+    }
+
+    if (currentTime === -1 && this.allRootNodes.length === 0) {
+      // Fif for first time load
+      this.updateData(-1);
+    }
+
+    if (prevState.currentTime !== currentTime || prevState.timeFormat !== timeFormat) {
+      this.updateData();
+    }
+
+    if (prevProps.deadline.day !== deadline.day || prevProps.deadline.hour !== deadline.hour) {
+      const newCurrentTime = moment.unix(this.minTime).add(deadline.day || 0, 'days').add(deadline.hour || 0, 'hours').unix();
+      this.updateData(newCurrentTime);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        currentTime: newCurrentTime,
+      });
+    }
+  }
+
+  onEntryExpandButtonClicked(i) {
+    const { expandIndex } = this.state;
+
+    if (expandIndex === i) {
+      this.setState({
+        expandIndex: -1,
+        isExpansionAnimating: false,
+      });
+    } else {
+      this.setState({
+        expandIndex: i,
+        isExpansionAnimating: true,
+      });
+    }
+  }
+
+  onEntryPinButtonClicked(e, id) {
+    e.stopPropagation();
+
+    const { pinIndex } = this.state;
+
+    if (pinIndex === id) {
+      this.setState({
+        pinIndex: -1,
+        showPinOnly: false,
+      });
+    } else {
+      this.setState({
+        pinIndex: id,
+      });
+    }
+  }
+
+  onEntryEnlargeButtonClicked(e, i) {
+    e.stopPropagation();
+
+    this.setState({
+      enlargeIndex: i,
+    });
+  }
+
+  onEntryEnlargeClose() {
+    this.setState({
+      enlargeIndex: -1,
+    });
+  }
+
+  onExpansionChangeEnd() {
+    this.setState({
+      isExpansionAnimating: false,
+    });
+  }
+
+  onMouseOverNode(node) {
+    const { mouseOverNode } = this.state;
+
+    if (mouseOverNode && node.info.id_str === mouseOverNode.info.id_str) {
+      return;
+    }
+
+    this.setState({
+      mouseOverNode: node,
+    });
+  }
+
+  onMouseOutNode() {
+    this.setState({
+      mouseOverNode: null,
+    });
+  }
+
+  onMouseClickNode(node) {
+    const id = node.info.id_str;
+
+    if (this.truthCampaignNodes.has(id)) {
+      this.truthCampaignNodes.delete(id);
+    } else {
+      this.truthCampaignNodes.add(id);
+    }
+
+    this.updateData();
+  }
+
+  onOverallInfoSeriesMouseOver(point) {
+    const { mouseOverThread } = this.state;
+
+    if (mouseOverThread && point.source_id_str === mouseOverThread.source_id_str) {
+      return;
+    }
+
+    this.setState({
+      mouseOverThread: point,
+    });
+  }
+
+  onOverallInfoSeriesMouseOut() {
+    this.setState({
+      mouseOverThread: null,
+    });
+  }
+
+  onOverallInfoSeriesMouseClick(point) {
+    const { expandIndex } = this.state;
+
+    if (expandIndex === point.index) {
+      this.setState({
+        expandIndex: -1,
+      });
+
+      return;
+    }
+
+    this.setState({
+      expandIndex: point.index,
+    });
+  }
+
+  onShowPinnedSwitchChange(v) {
+    const { pinIndex } = this.state;
+    this.setState({
+      showPinOnly: v,
+      expandIndex: v ? pinIndex : -1,
+    });
+  }
+
+  onSliderValueChange(v) {
+    const { onDeadlineChange, onDeadLineUpdated } = this.props;
+    const diffDay = moment.unix(v).diff(moment.unix(this.minTime), 'days');
+    const diffHour = moment.unix(v).diff(moment.unix(this.minTime), 'hours') % 24;
+
+    onDeadlineChange(v);
+    onDeadLineUpdated(diffDay, diffHour);
+
+    this.setState({
+      currentTime: v,
+    });
+  }
+
+  onTimeFormatChange(e) {
+    this.setState({
+      timeFormat: e.target.value,
+    });
+  }
+
+  updateWindowWidth() {
+    this.windowWidth = window.innerWidth;
+  }
+
+  updateData(time) {
+    let { currentTime } = this.state;
+    const { timeFormat } = this.state;
+    const {
+      sortedData, threadMap, userFollowersMap, tweetUserMap,
+    } = this.props;
+
+    if (time) {
+      currentTime = time;
+    }
+
+    this.allRootNodes = [];
+
+    sortedData.forEach((root, i) => {
+      const item = threadMap.get(root.tweet_id);
+      const isSaved = this.truthCampaignNodes.has(root.tweet_id);
+      const children = generateRecursiveStructure(item, currentTime, timeFormat, isSaved, this.truthCampaignNodes, userFollowersMap, tweetUserMap);
+      const count = children.reduce((sum, current) => sum + current.info.count, 1);
+      const allFollowersCount = children.reduce((sum, current) => sum + current.info.allFollowersCount, userFollowersMap.get(root.user_id));
+      const savedFollowersCount = children.reduce((sum, current) => sum + current.info.savedFollowersCount, isSaved ? userFollowersMap.get(root.user_id) : 0);
+      const savedTweetCount = children.reduce((sum, current) => sum + current.info.savedTweetCount, isSaved ? 1 : 0);
+      const isOutOfDeadline = currentTime > 0 && root.unix > currentTime;
+
+      if (!isOutOfDeadline) {
+        const outOfDeadlineTweetCount = children.reduce((sum, current) => sum + current.info.outOfDeadlineTweetCount, 0);
+        const outOfDeadlineFollowersCount = children.reduce((sum, current) => sum + current.info.outOfDeadlineFollowersCount, 0);
+
+        this.allRootNodes.push({
+          name: '',
+          info: {
+            id_str: item.tweet_id,
+            isRoot: true,
+            isSaved,
+            index: i,
+            count,
+            allFollowersCount,
+            outOfDeadlineTweetCount,
+            outOfDeadlineFollowersCount,
+            savedTweetCount,
+            savedFollowersCount,
+            minTime: item.minTime,
+            maxTime: item.maxTime,
+          },
+          nodeSvgShape: getNodeShape(children.length, isSaved, false, isOutOfDeadline),
+          children,
+        });
+      }
+    });
+
+    this.forceUpdate();
+  }
+
+  render() {
+    const { data, overallThreadInfo, tweetUserMap } = this.props;
+    if (!data || data.length === 0 || this.allRootNodes.length === 0) {
+      return (
+        <div className={styles.page}>
+          <div className={styles.loader}>
+            <Loader type="RevolvingDot" color="#000000" height="50" />
+          </div>
+          <span className={styles.message}>Loading thread data...</span>
+        </div>
+      );
+    }
+
+    const {
+      expandIndex,
+      enlargeIndex,
+      pinIndex,
+      isExpansionAnimating,
+      currentTime,
+      mouseOverThread,
+      showPinOnly,
+      mouseOverNode,
+    } = this.state;
+    const { eventName } = this.props;
+
+    const getTreeElement = (size, root) => (root
+      ? (
+        <Tree
+          data={root}
+          styles={treeStyle}
+          collapsible={false}
+          separation={{
+            siblings: 0.3,
+            nonSiblings: 0.5,
+          }}
+          transitionDuration={0}
+          key={root.info.id_str}
+          allowForeignObjects
+          depthFactor={60}
+          orientation="vertical"
+          onMouseOver={this.onMouseOverNode}
+          onMouseOut={this.onMouseOutNode}
+          onClick={this.onMouseClickNode}
+          nodeLabelComponent={{
+            render: (
+              <TIBLabel className={styles.nodeLabel} />
+            ),
+            foreignObjectWrapper: {
+              y: -40,
+              x: -8,
+              width: 80,
+              height: 30,
+            },
+          }}
+          translate={{
+            x: size.width / 2,
+            y: size.height / 5,
+          }}
+        />
+      ) : null);
+
+    const showModal = enlargeIndex >= 0;
+    const loader = (
+      <div className={styles.loader}>
+        <Loader type="RevolvingDot" color="#000000" height="30" />
+      </div>
+    );
+    const modal = (
+      <Modal
+        visible={showModal}
+        onCancel={this.onEntryEnlargeClose}
+        footer={null}
+        destroyOnClose
+        wrapClassName={styles.modal}
+        width="calc(100% - 2rem)"
+        style={{
+          maxWidth: '1440px',
+          top: 40,
+        }}
+      >
+        <div className={styles.modalContainer}>
+          <div className={styles.modalTreeContainer}>
+            {getTreeElement({
+              width: Math.min(this.windowWidth, 1440) - 2 * 16,
+              height: 30 * 5,
+            }, this.allRootNodes[enlargeIndex])}
+          </div>
+          <div className={styles.infoContainer}>
+            <TIBDetails
+              key="modal-tib-details"
+              tweetUserMap={tweetUserMap}
+              allRootNodes={this.allRootNodes}
+              expandIndex={enlargeIndex}
+              showPinOnly={showPinOnly}
+              pinIndex={pinIndex}
+              mouseOverNode={mouseOverNode}
+              eventName={eventName}
+              isHorizontal
+            />
+          </div>
+        </div>
+      </Modal>
+    );
+
+    const treeElements = this.allRootNodes.map((root, i) => {
+      if (showPinOnly && i !== pinIndex) {
+        return null;
+      }
+
+      return (
+        <div className={styles.entry} key={root.info.id_str}>
+          <div
+            className={styles.top}
+            onClick={() => this.onEntryExpandButtonClicked(i)}
+            onMouseOver={() => this.onOverallInfoSeriesMouseOver(overallThreadInfo[i])}
+            onMouseOut={this.onOverallInfoSeriesMouseOut}
+          >
+            <img
+              className={styles.left}
+              src={expandImg}
+              alt="Expand"
+              style={expandIndex === i ? { transform: 'rotate(90deg)' } : null}
+            />
+            <div className={styles.title}>{`Thread ${i + 1}: ${root.info.count} tweets`}</div>
+            <div className={styles.right}>
+              <div className={styles.fullScreen} onClick={e => this.onEntryEnlargeButtonClicked(e, i)}>
+                <Icon type="arrows-alt" />
+              </div>
+              <div className={styles.pin} onClick={e => this.onEntryPinButtonClicked(e, i)}>
+                <Icon type="pushpin" theme="filled" style={i === pinIndex ? { color: '#eaad7f' } : null} />
+              </div>
+            </div>
+            <div className={styles.bg}>
+              <div className={styles.saved} style={{ width: `${root.info.savedTweetCount / root.info.count * 100}%` }} />
+              <div className={styles.affected} style={{ width: `${(root.info.count - root.info.savedTweetCount - root.info.outOfDeadlineTweetCount) / root.info.count * 100}%` }} />
+              <div className={styles.dontcare} style={{ width: `${root.info.outOfDeadlineTweetCount / root.info.count * 100}%` }} />
+            </div>
+          </div>
+          <div className={styles.bottom}>
+            <SmoothCollapse
+              expanded={expandIndex === i}
+              onChangeEnd={this.onExpansionChangeEnd}
+            >
+              {expandIndex === i ? (
+                <div className={styles.treeWrapper}>
+                  {isExpansionAnimating ? loader : (
+                    <SizeMe
+                      monitorHeight
+                      refreshRate={32}
+                    >
+                      {({ size }) => getTreeElement(size, root)}
+                    </SizeMe>
+                  )}
+                </div>
+              ) : <div className={styles.treeWrapper} /> }
+            </SmoothCollapse>
+          </div>
+        </div>
+      );
+    });
+    const radioStyle = {
+      display: 'block',
+      height: '1.5rem',
+      lineHeight: '1.5rem',
+    };
+    const settingsContent = (
+      <div className={styles.settings}>
+        <Radio.Group defaultValue={TIME_FORMAT.hour} onChange={this.onTimeFormatChange}>
+          <Radio style={radioStyle} value={TIME_FORMAT.hourAndMin}>Hours and minutes, e.g. 10:12</Radio>
+          <Radio style={radioStyle} value={TIME_FORMAT.hour}>Hours</Radio>
+          <Radio style={radioStyle} value={TIME_FORMAT.day}>Days</Radio>
+        </Radio.Group>
+      </div>
+    );
+    const settingsPopover = (
+      <Popover title="Display time travelled between nodes in" content={settingsContent}>
+        <Icon
+          type="setting"
+          theme="filled"
+          style={{
+            color: '#8F8F8F', fontSize: '1.2rem', marginLeft: '0.6rem', cursor: 'pointer',
+          }}
+        />
+      </Popover>
+    );
+    const showHint = mouseOverThread || expandIndex >= 0;
+    const hintPosition = { x: 0, y: 0 };
+    let indexToShowOnHint = 0;
+    const overallInfoWithColor = overallThreadInfo.map(item => ({
+      ...item,
+      color: OVERALL_INFO_BAR_NORMAL_COLOR,
+    }));
+
+    if (mouseOverThread) {
+      hintPosition.x = mouseOverThread.x0;
+      hintPosition.y = mouseOverThread.y;
+      indexToShowOnHint = mouseOverThread.index + 1;
+      overallInfoWithColor[mouseOverThread.index] = {
+        ...overallThreadInfo[mouseOverThread.index],
+        color: OVERALL_INFO_BAR_MOUSEOVER_COLOR,
+      };
+    } else if (expandIndex >= 0) {
+      hintPosition.x = overallThreadInfo[expandIndex].x0;
+      hintPosition.y = overallThreadInfo[expandIndex].y;
+      indexToShowOnHint = expandIndex + 1;
+    }
+
+    if (expandIndex >= 0) {
+      overallInfoWithColor[expandIndex] = {
+        ...overallThreadInfo[expandIndex],
+        color: OVERALL_INFO_BAR_SELECTED_COLOR,
+      };
+    }
+
+    return (
+      <div className={styles.container}>
+        {modal}
+        <div className={styles.topContainer}>
+          <div className={styles.title}>
+          Temporal Influence Blocking
+            <div className={styles.slider}>
+              <Slider
+                tipFormatter={v => moment.unix(v).format('h a MMM DD, YYYY')}
+                min={this.minTime}
+                max={this.maxTime}
+                defaultValue={this.maxTime}
+                onChange={this.onSliderValueChange}
+                value={currentTime <= 0 ? this.maxTime : currentTime}
+              />
+            </div>
+          </div>
+          <div className={styles.chartContainer}>
+            <FlexibleWidthXYPlot
+              height={OVERALL_INFO_CHART_HEIGHT}
+              animation
+              xDomain={[this.minTime, currentTime < 0 ? this.maxTime : currentTime]}
+              yDomain={[0, this.allRootNodes.length]}
+              onMouseLeave={this.onOverallInfoSeriesMouseOut}
+            >
+              <XAxis
+                tickSize={0}
+                tickTotal={5}
+                tickFormat={v => moment.unix(v).format('MMM DD, YYYY')}
+              />
+              <VerticalRectSeries
+                data={overallInfoWithColor}
+                style={{ stroke: '#fff' }}
+                animation
+                onValueMouseOver={this.onOverallInfoSeriesMouseOver}
+                onValueMouseOut={this.onOverallInfoSeriesMouseOut}
+                onValueClick={this.onOverallInfoSeriesMouseClick}
+                colorType="literal"
+              />
+              {showHint ? (
+                <Hint value={hintPosition} align={{ horizontal: 'right', vertical: 'top' }}>
+                  <div className={styles.hintContainer}>{`Thread ${indexToShowOnHint}`}</div>
+                </Hint>
+              ) : null}
+            </FlexibleWidthXYPlot>
+          </div>
+        </div>
+        <div className={styles.bottomContainer}>
+          <div className={styles.graphContainer}>
+            <div className={styles.title}>
+              All Threads
+              {settingsPopover}
+              <div className={styles.switch}>
+                Show pinned only:
+                <Switch
+                  onChange={this.onShowPinnedSwitchChange}
+                  size="small"
+                  disabled={pinIndex < 0}
+                  checked={showPinOnly}
+                />
+              </div>
+            </div>
+            <div className={styles.entriesContainer}>
+              {treeElements}
+            </div>
+          </div>
+          <div className={styles.detailsContainer}>
+            <div className={styles.title}>Details</div>
+            <TIBDetails
+              tweetUserMap={tweetUserMap}
+              allRootNodes={this.allRootNodes}
+              expandIndex={expandIndex}
+              showPinOnly={showPinOnly}
+              pinIndex={pinIndex}
+              mouseOverNode={mouseOverNode}
+              eventName={eventName}
+              isHorizontal={false}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+TIB.propTypes = {
+  data: PropTypes.array.isRequired,
+  deadline: PropTypes.object.isRequired,
+  onDeadlineChange: PropTypes.func.isRequired,
+  onDeadLineUpdated: PropTypes.func.isRequired,
+  onMaxDeadLineCalculated: PropTypes.func.isRequired,
+  eventName: PropTypes.string,
+  selectedSourceTweetId: PropTypes.string,
+  sortedData: PropTypes.array.isRequired,
+  userFollowersMap: PropTypes.object.isRequired,
+  tweetUserMap: PropTypes.object.isRequired,
+  overallThreadInfo: PropTypes.array.isRequired,
+  threadMap: PropTypes.object.isRequired,
+  isDataProcessed: PropTypes.bool.isRequired,
+};
+
+TIB.defaultProps = {
+  eventName: '',
+  selectedSourceTweetId: '',
+};
+
+export default TIB;

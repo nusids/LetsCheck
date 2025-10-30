@@ -1,0 +1,152 @@
+:global {
+    .rv-force__node, .rv-force__link, .rv-force__label {
+        transition: opacity 250ms, color 250ms;
+    }
+
+    .rv-force__label {
+        background: white;
+    }
+}
+
+:local {
+    .container {
+        .accountsContainer {
+            width: 100%;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 10px;
+            background: #e85340;
+            color: transparent;
+            right: 50%;
+            top: 6px;
+            position: relative;
+        }
+
+        .hintContainer {    
+            .textContainer {
+                background: white;
+                box-shadow: 1px 1px 9px 0px #b7b7b7;
+                color: #545454;
+                padding: 6px 10px;
+                border-radius: 3px;
+                white-space: nowrap;
+                position: relative;
+                top: 20px;
+                left: 10%;
+            }
+    
+            .indicator {    
+                height: 100px;
+                position: relative;
+                border-left: 2px dotted #afafaf;
+            }
+        }
+
+        .infoTitle {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-family: 'PT Sans', sans-serif;
+
+            .number {
+                font-size: 1.8rem;
+                margin-right: 0.3rem;
+                color: #4A4A4A;
+            }
+        }
+
+        .tweetDesc {
+            font-family: 'PT Sans', sans-serif;
+            color: #4A4A4A;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: gray;
+            font-size: 0.8rem;
+            font-family: 'PT Sans', sans-serif;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+
+        .singleTweetContainer {
+            width: 15rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .title {
+            margin-bottom: 1rem;
+            color: white;
+            background: #545c61;
+            padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+            border-radius: 0.2rem;
+            font-size: 1.1rem;
+        }
+
+        .urlContainer {
+            .urlContent {
+                display: flex;
+                flex-wrap: wrap;
+                font-family: 'PT Sans', sans-serif;
+            }
+        }
+
+        .tweetAccountContainer {
+            display: flex;
+            margin-bottom: 1rem;
+            
+            .accountsContainer {
+                .content {
+                    display: flex;
+                    flex-wrap: wrap;
+                    font-family: 'PT Sans', sans-serif;
+
+                    .account:hover {
+                        background: #dedede;
+                    }
+
+                    .account {
+                        display: flex;
+                        background: white;
+                        box-shadow: 2px 1px 10px 0px #cecece;
+                        margin-bottom: 0.8rem;
+                        margin-right: 0.8rem;
+                        border-radius: 0.2rem;
+                        font-size: 0.9rem;
+                        align-items: center;
+                        user-select: none;
+                        cursor: pointer;
+                        transition: 0.3s ease-in-out;
+
+                        img {    
+                            width: 1.6rem;
+                            height: 1.6rem;
+                            border-radius: 2rem;
+                            margin: 0 0.5rem;
+                            border: 2px solid #e2e2e2;
+                        }
+
+                        .followers {
+                            margin-left: 0.5rem;
+                            padding-top: 0.6rem;
+                            padding-bottom: 0.6rem;
+                            padding-right: 0.5rem;
+                            background: #1DA1F2;
+                            color: white;
+                            border-radius: 0 0.2rem 0.2rem 0;
+                            padding-left: 0.5rem;
+                        }
+
+                        .name {
+                            padding: 0.4rem 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

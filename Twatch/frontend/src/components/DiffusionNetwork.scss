@@ -1,0 +1,113 @@
+:local {
+    .container {
+        position: relative;
+    }
+
+    .contentContainer{
+        display: flex;
+
+        .chartContainer {
+            width: 400px;
+        }
+
+        .detailsContainer {
+            padding-left: 2rem;
+            position: relative;
+            width: 100%;
+            flex-grow: 0;
+
+            .title {
+                font-size: 1.4rem;
+                color: #4A4A4A;
+                margin-bottom: 1rem;
+            }
+        }
+    }
+
+    .actionContainer {
+        align-items: center;
+
+        div {
+            padding: 0.2rem 0.5rem;
+            background: #e6e6e6;
+            cursor: pointer;
+            border-radius: 0.2rem;
+            transition: 0.3s;
+        }
+
+        div:hover {
+            background: #c5c5c5;
+        }
+
+        div:nth-child(1) {
+            margin-right: 0.5rem;
+        } 
+
+        img {
+            width: 0.6rem;
+            height: 0.6rem;
+            margin-right: 0.2rem;
+        }
+    }
+
+    .legendContainer {
+        margin-left: auto;
+        color: #4A4A4A;
+
+        .legend {
+            display: flex;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+
+            .title {
+                width: 4rem;
+                margin-right: 2rem;
+            }
+        }
+
+        .colorLegend {
+            display: flex;
+            margin-top: 1rem;
+            justify-content: space-evenly;
+            width: 100%;
+
+            .colorItem {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-right: 1rem;
+                font-size: 0.8rem;
+
+                .circle {
+                    width: 1rem;
+                    height: 1rem;
+                    border-radius: 1rem;
+                }
+
+                .desc {
+                    margin-top: 0.5rem;
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+    .messageContainer {
+        position: fixed;
+        left: 50%;
+        top: 40%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .errorMessage {
+        text-align: center;
+  }
+  
+    .detailHeaderContainer {
+        display:flex;
+        flex-direction: row;
+        width: 400px;
+    }
+}

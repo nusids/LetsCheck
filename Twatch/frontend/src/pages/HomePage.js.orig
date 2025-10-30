@@ -1,0 +1,190 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
+import { connect } from 'react-redux';
+// import Loader from 'react-loader-spinner';
+import searchImg from '../assets/search.svg';
+// import refreshImg from '../assets/refresh.svg';
+import styles from './HomePage.scss';
+// import { fetchFactChecks, fetchTrendingRumours } from '../actions/dataAction';
+// import { fetchPopularSearches } from '../actions/searchAction';
+import Header from '../components/Header';
+// import TopSearchItem from '../components/TopSearchItem';
+// import FactCheckCard from '../components/FactCheckCard';
+// import TrendingRumouCard from '../components/TrendingRumourCard';
+import focusImg from '../assets/focus.svg';
+// import { getItemsFromIndex } from '../utils/util';
+
+// const NUMBER_OF_TRENDING_RUMOURS_ON_DISPLAY = 4;
+// const NUMBER_OF_FACT_CHECKS_ON_DISPLAY = 4;
+
+class HomePage extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      // trendingRumoursIndex: 0,
+      // factChecksIndex: 0,
+    };
+    this.searchText = '';
+    // this.onRefreshIconClicked = this.onRefreshIconClicked.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onInputKeyUp = this.onInputKeyUp.bind(this);
+    this.onViewEvents = this.onViewEvents.bind(this);
+  }
+
+  componentDidMount() {
+    // const { getFactChecks, getTrendingRumours, getPopularSearches } = this.props;
+    // getFactChecks();
+    // getTrendingRumours();
+    // getPopularSearches();
+  }
+
+  // onRefreshIconClicked(sectionIndex) {
+  // const { factChecksIndex, trendingRumoursIndex } = this.state;
+  // const { factChecks, trendingRumours } = this.props;
+  //
+  // if (sectionIndex === 1) {
+  //   const newIndex = (trendingRumoursIndex + NUMBER_OF_TRENDING_RUMOURS_ON_DISPLAY) % trendingRumours.length;
+  //   this.setState({
+  //     trendingRumoursIndex: newIndex,
+  //   });
+  // }
+  //
+  // if (sectionIndex === 2) {
+  //   const newIndex = (factChecksIndex + NUMBER_OF_FACT_CHECKS_ON_DISPLAY) % factChecks.length;
+  //   this.setState({
+  //     factChecksIndex: newIndex,
+  //   });
+  // }
+  // }
+
+  onSearch() {
+    const textRaw = this.searchText.trim();
+    if (!textRaw) {
+      return;
+    }
+
+    const { history } = this.props;
+    // text = encodeURIComponent(text);
+    history.push(`/search?q=${textRaw}`);
+  }
+
+  onInputChange(e) {
+    this.searchText = e.target.value.trim();
+  }
+
+  onInputKeyUp(e) {
+    e.preventDefault();
+
+    if (e.keyCode === 13) {
+      this.onSearch();
+    }
+  }
+
+  onViewEvents() {
+    const { history } = this.props;
+    history.push('/events');
+  }
+
+  render() {
+    // const { trendingRumoursIndex, factChecksIndex } = this.state;
+    const { history } = this.props;
+    // trendingRumours, factChecks,
+    // isFetchingPopularSearch, popularSearches
+    // const { factChecksIndex } = this.state;
+    // const
+    //   factChecks, isFetchingPopularSearch, popularSearches, history,
+    // } = this.props;
+    // const trendingRumoursOnDisplay = getItemsFromIndex(trendingRumoursIndex, trendingRumours.filter(item => item.desc), NUMBER_OF_TRENDING_RUMOURS_ON_DISPLAY);
+    // const factChecksOnDisplay = getItemsFromIndex(factChecksIndex, factChecks, NUMBER_OF_FACT_CHECKS_ON_DISPLAY);
+    // const topSearchItems = popularSearches
+    //   .map((item, index) => <TopSearchItem index={index} name={item.name} key={index} history={history} />);
+    // const factCheckCards = factChecksOnDisplay.map((item, index) => <FactCheckCard item={item} key={index} />);
+    // const trendingRumourCards = trendingRumoursOnDisplay.map((item, index) => <TrendingRumouCard rumour={item} key={index} />);
+    // const loader = (
+    //   <div className={styles.loader}>
+    //     <Loader type="RevolvingDot" color="#000000" height="30" />
+    //   </div>
+    // );
+
+    return (
+      <div className={styles.page}>
+        <Header history={history} />
+        <div className={styles.middle}>
+          <div className={styles.searchArea}>
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Type to search..."
+              onChange={this.onInputChange}
+              onKeyUp={this.onInputKeyUp}
+            />
+            <img className={styles.inputIcon} src={searchImg} alt="" onClick={this.onSearch} />
+          </div>
+          <div className={styles.viewEventsButton} onClick={this.onViewEvents}>
+            <img src={focusImg} alt="" />
+            Or view a list of events that we collected
+          </div>
+        </div>
+        {/* <div className={styles.infoSections}> */}
+        {/*  <div className={styles.section1}> */}
+        {/*    <div className={styles.header}>Top Search</div> */}
+        {/*     <div className={styles.topSearchContainer}>{isFetchingPopularSearch ? loader : topSearchItems}</div> */}
+        {/* </div> */}
+        {/* <div className={styles.section2}> */}
+        {/*  <div className={styles.header}>Popular Events</div> */}
+        {/*  <img */}
+        {/*    className={styles.icon} */}
+        {/*    src={refreshImg} */}
+        {/*    alt="refresh" */}
+        {/*    onClick={() => this.onRefreshIconClicked(1)} */}
+        {/*  /> */}
+        {/* <div className={styles.trendingRumoursContainer}>{trendingRumourCards}</div> */}
+        {/* </div> */}
+        {/* <div className={styles.section3}> */}
+        {/*  <div className={styles.header}>Popular Fact-checks</div> */}
+        {/*  <img */}
+        {/*    className={styles.icon} */}
+        {/*    src={refreshImg} */}
+        {/*    alt="refresh" */}
+        {/*    onClick={() => this.onRefreshIconClicked(2)} */}
+        {/*  /> */}
+        {/*   <div className={styles.factChecksContainer}>{factCheckCards}</div> */}
+        {/* </div> */}
+        {/* </div> */}
+      </div>
+    );
+  }
+}
+
+HomePage.propTypes = {
+  history: PropTypes.object.isRequired,
+  // factChecks: PropTypes.array,
+  // trendingRumours: PropTypes.array,
+  // popularSearches: PropTypes.array.isRequired,
+  // isFetchingPopularSearch: PropTypes.bool.isRequired,
+  // getFactChecks: PropTypes.func.isRequired,
+  // getTrendingRumours: PropTypes.func.isRequired,
+  // getPopularSearches: PropTypes.func.isRequired,
+};
+
+HomePage.defaultProps = {
+  // factChecks: [],
+  // trendingRumours: [],
+};
+
+export default withRouter(connect(
+  // state => ({
+  //   factChecks: state.data.factChecks,
+  //   trendingRumours: state.data.trendingRumours,
+  //   popularSearches: state.search.popularSearches,
+  //   isFetchingPopularSearch: state.search.isFetchingPopularSearch,
+  // }),
+  // dispatch => ({
+  // getFactChecks: () => dispatch(fetchFactChecks()),
+  // getTrendingRumours: () => dispatch(fetchTrendingRumours()),
+  // getPopularSearches: () => dispatch(fetchPopularSearches()),
+  // }),
+)(HomePage));

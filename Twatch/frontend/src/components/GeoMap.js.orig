@@ -1,0 +1,392 @@
+import React, { Component } from 'react';
+import ReactMapGL from 'react-map-gl';
+import PropTypes from 'prop-types';
+import { Popover } from 'antd';
+import { fromJS } from 'immutable';
+import moment from 'moment';
+import GeoMapTweetCard from './GeoMapTweetCard';
+import MAP_STYLE from '../assets/mapbox-style-dark.json';
+import 'antd/lib/popover/style/css';
+import * as styles from './GeoMap.scss';
+
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibGFoYWxhaGEiLCJhIjoiY2ppMm92aWk0MDBlMDNxbzRtaGY2aDhjaCJ9.GXYAQLGcDdLFuFs0-5l9Bw';
+const NUM_FRAMES = 500;
+const REFRESH_TIME = 50;
+let animation = null;
+
+class GeoMap extends Component {
+  constructor(props) {
+    super(props);
+
+    const zoomLevel = props.isSelfAnimated ? 0.5 : 1;
+    this.state = {
+      mapStyle: fromJS(MAP_STYLE),
+      viewport: {
+        width: '100%',
+        height: '100%',
+        latitude: 22.35,
+        longitude: 103.82,
+        zoom: zoomLevel,
+      },
+      shouldShowPopup: false,
+      selectedInfo: null,
+    };
+
+    this.onMapLoaded = this.onMapLoaded.bind(this);
+    this.onViewportChange = this.onViewportChange.bind(this);
+    this.onMapClicked = this.onMapClicked.bind(this);
+    this.onAnimate = this.onAnimate.bind(this);
+    this.onPopupClose = this.onPopupClose.bind(this);
+
+    this.earliestTime = Number.MIN_SAFE_INTEGER;
+    this.latestTime = Number.MAX_SAFE_INTEGER;
+    this.currentFrame = 0;
+    this.percentile = 0;
+    this.geoInfoIncrementsByFrame = [];
+    this.geoInfoSoFar = [];
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isSelfAnimated, currentTime } = this.props;
+    if (this.props.geoInfo !== prevProps.geoInfo) {
+      clearInterval(animation);
+      this.onMapLoaded();
+    }
+
+    if (currentTime !== prevProps.currentTime && !isSelfAnimated) {
+      this.processDataBeforeTime();
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(animation);
+    animation = null;
+  }
+
+  onAnimate() {
+    if (this.currentFrame >= NUM_FRAMES) {
+      this.currentFrame = 0;
+    }
+
+    if (this.currentFrame === 0) {
+      this.currentFrame += 1;
+      this.geoInfoSoFar = JSON.parse(JSON.stringify(this.geoInfoIncrementsByFrame[0].data));
+      this.loadData(this.geoInfoSoFar);
+
+      return;
+    }
+
+    const { geoInfo } = this.props;
+    const increment = this.geoInfoIncrementsByFrame[this.currentFrame];
+
+    for (let i = 0; i < geoInfo.length; i += 1) {
+      this.geoInfoSoFar[i].tweets = this.geoInfoSoFar[i].tweets.concat(increment.data[i].tweets);
+    }
+
+    this.currentFrame += 1;
+    this.loadData(this.geoInfoSoFar);
+  }
+
+  onMapClicked(event) {
+    const { srcEvent: { offsetX, offsetY } } = event;
+    const feature = event.features.find(f => f.layer.id === 'point-layer');
+
+    if (!feature) {
+      return;
+    }
+
+    this.setState({
+      shouldShowPopup: true,
+      selectedInfo: {
+        ...feature.properties,
+        x: offsetX,
+        y: offsetY,
+      },
+    });
+  }
+
+  onMapLoaded() {
+    const { geoInfo, isSelfAnimated } = this.props;
+
+    if (geoInfo.length > 0) {
+      if (isSelfAnimated) {
+        this.preprocessGeoInfo();
+        animation = setInterval(this.onAnimate, REFRESH_TIME);
+      } else {
+        this.processDataBeforeTime();
+      }
+    }
+  }
+
+  onViewportChange(viewport) {
+    this.setState({
+      viewport,
+      shouldShowPopup: false,
+    });
+  }
+
+  onPopupClose() {
+    this.setState({
+      shouldShowPopup: false,
+      selectedInfo: null,
+    });
+  }
+
+  preprocessGeoInfo() {
+    const { geoInfo } = this.props;
+    this.geoInfoIncrementsByFrame = [];
+
+    if (geoInfo.length === 0) {
+      return;
+    }
+
+    this.earliestTime = geoInfo[0].tweets[0].created_at;
+    this.latestTime = geoInfo[0].tweets[0].created_at;
+
+    geoInfo.forEach((entry) => {
+      entry.tweets.forEach((item) => {
+        this.earliestTime = Math.min(this.earliestTime, item.created_at);
+        this.latestTime = Math.max(this.latestTime, item.created_at);
+      });
+    });
+
+    const percentile = (this.latestTime - this.earliestTime) / NUM_FRAMES;
+    this.percentile = percentile;
+
+    let current = this.earliestTime;
+    while (current <= this.latestTime) {
+      const next = current + percentile;
+      const filtered = [];
+
+      geoInfo.forEach((entry) => {
+        const filteredTweets = entry.tweets.filter(item => item.created_at >= current && item.created_at < next);
+        filtered.push({
+          ...entry,
+          tweets: filteredTweets,
+        });
+      });
+
+      this.geoInfoIncrementsByFrame.push({
+        from: current,
+        to: next,
+        data: filtered,
+      });
+
+      current += percentile;
+    }
+  }
+
+  processDataBeforeTime() {
+    const { currentTime, geoInfo, isSelfAnimated } = this.props;
+
+    if (geoInfo.length === 0) {
+      return;
+    }
+
+    if (currentTime < 0 && !isSelfAnimated) {
+      this.loadData(geoInfo);
+      return;
+    }
+
+    const filteredGeoInfo = [];
+
+    geoInfo.forEach((item) => {
+      const filteredTweets = item.tweets.filter(x => x.created_at <= currentTime);
+
+      if (filteredTweets.length > 0) {
+        const temp = { ...item };
+        temp.tweets = filteredTweets;
+        filteredGeoInfo.push(temp);
+      }
+    });
+
+    this.loadData(filteredGeoInfo);
+  }
+
+  loadData(geoInfo) {
+    let { mapStyle } = this.state;
+    const MAX_ZOOM_LEVEL = 9;
+    const singlePointSourceId = 'points';
+    const headtmapLayer = {
+      id: 'heatmap-layer',
+      source: singlePointSourceId,
+      maxzoom: MAX_ZOOM_LEVEL,
+      type: 'heatmap',
+      paint: {
+        // Increase the heatmap weight based on frequency and property magnitude
+        'heatmap-weight': [
+          'interpolate',
+          ['linear'],
+          ['get', 'mag'],
+          0, 0,
+          6, 1,
+        ],
+        // Increase the heatmap color weight weight by zoom level
+        // heatmap-intensity is a multiplier on top of heatmap-weight
+        'heatmap-intensity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          0, 1,
+          MAX_ZOOM_LEVEL, 3,
+        ],
+        // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+        // Begin color ramp at 0-stop with a 0-transparancy color
+        // to create a blur-like effect.
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(33,102,172,0)',
+          0.2, 'rgb(103,169,207)',
+          0.4, 'rgb(209,229,240)',
+          0.6, 'rgb(253,219,199)',
+          0.8, 'rgb(239,138,98)',
+          0.9, 'rgb(255,201,101)',
+        ],
+        // Adjust the heatmap radius by zoom level
+        'heatmap-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          0, 2,
+          MAX_ZOOM_LEVEL, 20,
+        ],
+        // Transition from heatmap to circle layer by zoom level
+        'heatmap-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1,
+          9, 0,
+        ],
+      },
+    };
+    if (!mapStyle.hasIn(['sources', singlePointSourceId])) {
+      const pointLayer = fromJS({
+        id: 'point-layer',
+        type: 'circle',
+        source: singlePointSourceId,
+        minzoom: 6,
+        paint: {
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'],
+            6, ['*', ['get', 'radius'], 2],
+            13, ['*', ['get', 'radius'], 10],
+          ],
+          'circle-color': 'rgb(255,201,101)',
+        },
+      });
+      const labelLayer = fromJS({
+        id: 'cluster-count-layer',
+        type: 'symbol',
+        source: singlePointSourceId,
+        minzoom: 6,
+        layout: {
+          'text-field': '{count}',
+          'text-size': 16,
+        },
+      });
+
+      mapStyle = mapStyle.set('layers', mapStyle.get('layers').push(pointLayer));
+      mapStyle = mapStyle.set('layers', mapStyle.get('layers').push(labelLayer));
+      mapStyle = mapStyle.set('layers', mapStyle.get('layers').push(headtmapLayer));
+    }
+
+    const points = geoInfo.map(item => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: item.coordinates,
+      },
+      properties: {
+        radius: item.tweets.length > 0 ? 2 * Math.log(item.tweets.length + 2) + 1 : 0,
+        count: item.tweets.length,
+        tweets: item.tweets.map(x => x.id_str).join(','),
+        latitude: item.coordinates[0],
+        longitude: item.coordinates[1],
+      },
+    }));
+    const pointData = fromJS({
+      type: 'FeatureCollection',
+      features: points,
+    });
+    mapStyle = mapStyle.setIn(['sources', singlePointSourceId], {
+      type: 'geojson',
+      data: pointData,
+    });
+
+    this.setState({
+      mapStyle,
+    });
+  }
+
+  render() {
+    const {
+      mapStyle, shouldShowPopup, selectedInfo, viewport,
+    } = this.state;
+    const { isSelfAnimated, eventName } = this.props;
+    let { currentTime } = this.props;
+
+    if (isSelfAnimated) {
+      currentTime = Math.floor(this.earliestTime + this.currentFrame * this.percentile);
+    }
+
+    const x = selectedInfo ? selectedInfo.x : 0;
+    const y = selectedInfo ? selectedInfo.y : 0;
+    const popup = (
+      <div className={styles.popup} style={{ left: x, top: y }}>
+        <Popover
+          visible={shouldShowPopup}
+          trigger="click"
+          placement="bottom"
+          content={(
+             selectedInfo ? (
+               <GeoMapTweetCard
+                 eventName={eventName}
+                 tweetIds={selectedInfo.tweets.split(',')}
+                 onClose={this.onPopupClose}
+               />
+             ) : null
+          )}
+        />
+      </div>
+    );
+
+    return (
+      <div className={styles.mapContainer}>
+        <ReactMapGL
+          {...viewport}
+          width="100%"
+          height="100%"
+          onViewportChange={this.onViewportChange}
+          mapboxApiAccessToken={MAPBOX_TOKEN}
+          mapStyle={mapStyle}
+          onLoad={this.onMapLoaded}
+          onClick={this.onMapClicked}
+          maxZoom={13}
+        >
+          {popup}
+          <div className={styles.dateContainer}>{currentTime > 0 ? moment.unix(currentTime).format('HH:mm - MMM DD, YYYY') : ''}</div>
+        </ReactMapGL>
+      </div>
+    );
+  }
+}
+
+GeoMap.propTypes = {
+  tweets: PropTypes.array,
+  geoInfo: PropTypes.array,
+  isSelfAnimated: PropTypes.bool,
+  currentTime: PropTypes.number,
+  eventName: PropTypes.string.isRequired,
+};
+
+GeoMap.defaultProps = {
+  tweets: [],
+  geoInfo: [],
+  isSelfAnimated: true,
+  currentTime: -1,
+};
+
+export default GeoMap;

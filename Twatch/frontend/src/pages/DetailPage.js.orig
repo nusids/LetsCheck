@@ -1,0 +1,687 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import queryString from 'query-string';
+import moment from 'moment';
+// import { SizeMe } from 'react-sizeme';
+import { InputNumber } from 'antd';
+import Loader from 'react-loader-spinner';
+import _ from 'underscore';
+import Popover from 'react-tiny-popover';
+import StackGrid from 'react-stack-grid';
+import VisibilitySensor from 'react-visibility-sensor';
+// import { fetchEventGeoInfo } from '../actions/dataAction';
+import { fetchSearchData } from '../actions/searchAction';
+import {
+  fetchEventByName, fetchProgressiveDataByName, fetchDiffusionDataByName,
+} from '../actions/detailsAction';
+import { fetchUsersByIds } from '../actions/userAction';
+import { fetchTweetsByIds } from '../actions/tweetAction';
+import TweetCard from '../components/TweetCard';
+import AccountCard from '../components/AccountCard';
+import GeoMap from '../components/GeoMap';
+import InteractiveTrend from '../components/InteractiveTrend';
+// import RelevantFactCheckCard from '../components/RelevantFactCheckCard';
+import TIB from '../components/TIB';
+// import InteractiveTimeline from '../components/InteractiveTimeline';
+import DiffusionNetwork from '../components/DiffusionNetwork';
+import infoImg from '../assets/info.svg';
+// import playImg from '../assets/play.svg';
+import closeImg from '../assets/close.svg';
+// import pauseImg from '../assets/pause.svg';
+import styles from './DetailPage.scss';
+import 'antd/lib/input-number/style/css';
+
+const INFO_ITEMS = Object.freeze({
+  influentialTweets: {
+    index: 0,
+    title: 'Influential Tweets',
+  },
+  influentialUsers: {
+    index: 1,
+    title: 'Influential Accounts',
+  },
+  diffusionNetwork: {
+    index: 4,
+    title: 'Diffusion Network',
+  },
+  tib: {
+    index: 5,
+    title: 'Temporal Influence Blocking',
+  },
+});
+
+class DetailPage extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedInfo: 0,
+      isPlaying: false,
+      currentTime: -1,
+      isTimeSelected: false,
+      isMapInfoOpen: false,
+      deadline: {
+        day: null,
+        hours: null,
+      },
+      maxDeadLine: {
+        day: null,
+        hours: null,
+      },
+    };
+
+    const { location: { search } } = this.props;
+    const query = queryString.parse(search);
+
+    this.eventName = query.event;
+    this.searchQuery = query.q;
+    this.onInfoOptionUpdate = this.onInfoOptionUpdate.bind(this);
+    this.setAccountGridRef = this.setAccountGridRef.bind(this);
+    this.setTweetGridRef = this.setTweetGridRef.bind(this);
+    this.onCurrentTimeChanged = this.onCurrentTimeChanged.bind(this);
+    this.onMapInfoClicked = this.onMapInfoClicked.bind(this);
+    this.onPlayButtonClicked = this.onPlayButtonClicked.bind(this);
+    this.onTimeCloseButtonClicked = this.onTimeCloseButtonClicked.bind(this);
+    this.onCurrentTimeSelected = this.onCurrentTimeSelected.bind(this);
+    this.onFactCardClicked = this.onFactCardClicked.bind(this);
+    this.onDeadlineSet = this.onDeadlineSet.bind(this);
+    this.onDeadLineUpdated = this.onDeadLineUpdated.bind(this);
+    this.onMaxDeadLineCalculated = this.onMaxDeadLineCalculated.bind(this);
+    this.onRedirectToTIBClicked = this.onRedirectToTIBClicked.bind(this);
+
+    this.tweetGrid = null;
+    this.accountGrid = null;
+    this.progDataPreprocessed = false;
+    this.xyDataProcessed = false;
+    this.itemDataLoaded = false;
+    this.selectedSourceTweetIdToTIB = null;
+    this.progDataMap = new Map();
+    this.xyMap = new Map();
+  }
+
+  componentDidMount() {
+    const {
+      getEvent,
+      // getGeoInfo,
+      getProgData,
+      // geoInfo,
+      getDiffusionData,
+      isFromSearch,
+      getSearchData,
+    } = this.props;
+
+    if (isFromSearch) {
+      getSearchData(this.searchQuery);
+      return;
+    }
+
+    // if (!geoInfo[this.eventName]) {
+    //   getGeoInfo(this.eventName);
+    // }
+
+    getEvent(this.eventName);
+    getProgData(this.eventName);
+    getDiffusionData(this.eventName);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      progData, currentEvent, getUsers, getTweets, isFromSearch,
+    } = this.props;
+    const { currentTime, selectedInfo } = this.state;
+    const isTIBSelected = selectedInfo === INFO_ITEMS.tib.index;
+
+    if (progData.length > 0 && !this.progDataPreprocessed) {
+      this.preprocessProgData(progData);
+    }
+
+    if (!currentEvent) {
+      return;
+    }
+
+    if (!this.xyDataProcessed) {
+      this.preprocessXYData();
+    }
+
+    if (isTIBSelected) {
+      this.selectedSourceTweetIdToTIB = null;
+      return;
+    }
+
+    if ((!this.itemDataLoaded || prevState.currentTime !== currentTime) && !isFromSearch) {
+      let userIds = currentEvent.influentialUsers.map(x => x.id_str).concat(currentEvent.influentialTweets.map(x => x.user.id_str));
+      userIds = _.uniq(userIds);
+      let tweetsIds = currentEvent.influentialTweets.map(x => x.id_str);
+
+      if (this.progDataPreprocessed && currentTime > 0) {
+        if (this.progDataMap.has(currentTime)) {
+          userIds = this.progDataMap.get(currentTime).influentialUsers.map(x => x.id_str);
+          tweetsIds = this.progDataMap.get(currentTime).influentialTweets.map(x => x.id_str);
+        }
+      }
+
+      getUsers(userIds);
+      getTweets(this.eventName, tweetsIds);
+
+      this.itemDataLoaded = true;
+    }
+
+    this.updateGridLayout();
+  }
+
+  onFactCardClicked(link) {
+    window.open(link, '_blank');
+  }
+
+  onInfoOptionUpdate(idx) {
+    const { selectedInfo } = this.state;
+    const isPreviousOneTIB = selectedInfo === INFO_ITEMS.tib.index;
+
+    if (selectedInfo === idx || idx === 2 || idx === 3) {
+      return;
+    }
+
+    if (isPreviousOneTIB) {
+      this.setState({
+        currentTime: -1,
+        selectedInfo: idx,
+      });
+    } else {
+      this.setState({
+        selectedInfo: idx,
+      });
+    }
+  }
+
+  onCurrentTimeChanged(time, isSelected) {
+    this.setState({
+      currentTime: time,
+      isTimeSelected: isSelected || false,
+    });
+  }
+
+  onCurrentTimeSelected() {
+    this.setState({
+      isTimeSelected: true,
+    });
+  }
+
+  onDeadLineUpdated(day, hour) {
+    this.setState({
+      deadline: {
+        day,
+        hour,
+      },
+    });
+  }
+
+  onMapInfoClicked() {
+    const { isMapInfoOpen } = this.state;
+
+    this.setState({
+      isMapInfoOpen: !isMapInfoOpen,
+    });
+  }
+
+  onPlayButtonClicked() {
+    const { isPlaying } = this.state;
+
+    this.setState({
+      isPlaying: !isPlaying,
+    });
+  }
+
+  onTimeCloseButtonClicked() {
+    this.setState({
+      currentTime: -1,
+      isTimeSelected: false,
+    });
+  }
+
+  onDeadlineSet(v, isDay) {
+    const { deadline } = this.state;
+    let newDay = deadline.day;
+    let newHour = deadline.hour;
+
+    if (isDay) {
+      newDay = v;
+    } else {
+      newHour = v;
+    }
+
+    this.setState({
+      deadline: {
+        day: newDay,
+        hour: newHour,
+      },
+    });
+  }
+
+  onMaxDeadLineCalculated(day, hour) {
+    const carry = (hour + 1) >= 24 ? 1 : 0;
+    const newDay = day + carry;
+    const newHour = hour + (carry > 0 ? 0 : 1);
+    this.setState({
+      maxDeadLine: {
+        day: newDay,
+        hour: newHour,
+      },
+      deadline: {
+        day: newDay,
+        hour: newHour,
+      },
+    });
+  }
+
+  onRedirectToTIBClicked(sourceTweetId) {
+    this.selectedSourceTweetIdToTIB = sourceTweetId;
+    this.onInfoOptionUpdate(INFO_ITEMS.tib.index);
+  }
+
+  setTweetGridRef(grid) {
+    this.tweetGrid = grid;
+  }
+
+  setAccountGridRef(grid) {
+    this.accountGrid = grid;
+  }
+
+  updateGridLayout() {
+    if (this.accountGrid) {
+      this.accountGrid.updateLayout();
+    }
+
+    if (this.tweetGrid) {
+      this.tweetGrid.updateLayout();
+    }
+  }
+
+  preprocessProgData() {
+    const { progData } = this.props;
+
+    if (progData.length === 0) {
+      return;
+    }
+
+    this.progDataPreprocessed = true;
+
+    progData.forEach((item) => {
+      this.progDataMap.set(item.time, {
+        count: item.count,
+        influentialUsers: item.influentialUsers,
+        influentialTweets: item.influentialTweets,
+      });
+    });
+  }
+
+  preprocessXYData() {
+    const { currentEvent } = this.props;
+
+    currentEvent.trend.forEach((item) => {
+      this.xyMap.set(item.x, item.y);
+    });
+  }
+
+  render() {
+    const {
+      currentEvent,
+      isLoadingEvent,
+      isLoadingProgData,
+      isLoadingDiffusionData,
+      geoInfo,
+      diffusionData,
+      userInfo,
+      tweetInfo,
+      isFromSearch,
+    } = this.props;
+    const {
+      maxDeadLine,
+      selectedInfo,
+      currentTime,
+      isMapInfoOpen,
+      isTimeSelected,
+      deadline,
+    } = this.state;
+
+    if (isLoadingEvent
+      || isLoadingProgData
+      || isLoadingDiffusionData
+      || !currentEvent) {
+      console.log('Still waiting for DetailPage to render.');
+      console.log(this);
+      return (
+        <div className={styles.page}>
+          <div className={styles.loader}>
+            <Loader type="RevolvingDot" color="#000000" height="50" />
+          </div>
+        </div>
+      );
+    }
+
+    let influUsers = currentEvent.influentialUsers;
+    let influTweets = currentEvent.influentialTweets;
+    const influentialTweetsTextContentSet = new Set(influTweets.map(tweet => tweet.text)); // unique tweets content
+    const uniqueInfluentialTweets = [];
+
+    for (let i = 0; i < influTweets.length; i += 1) {
+      if (influentialTweetsTextContentSet.has(influTweets[i].text)) {
+        uniqueInfluentialTweets.push(influTweets[i]);
+        influentialTweetsTextContentSet.delete(influTweets[i].text);
+      }
+    }
+
+    influTweets = uniqueInfluentialTweets; // update
+
+    if (this.progDataPreprocessed && currentTime > 0) {
+      if (this.progDataMap.has(currentTime)) {
+        influUsers = this.progDataMap.get(currentTime).influentialUsers;
+        influTweets = this.progDataMap.get(currentTime).influentialTweets;
+      }
+    }
+
+    // const factChecks = currentEvent.relevantFactChecks ? currentEvent.relevantFactChecks : [];
+    // factChecks.sort((a, b) => a.claim.length + a.desc.length - b.claim.length - b.desc.length);
+    // const relevantFactChecks = (
+    //   <SizeMe monitorWidth>
+    //     {({ size }) => (
+    //       <div className={styles.section} key="fact-checks">
+    //         <div className={styles.title}>Relevant fact checks</div>
+    //         {!currentEvent.relevantFactChecks || currentEvent.relevantFactChecks.length === 0 ? <div className={styles.placeholder}>No relevant fact checks found.</div> : null}
+    //         <StackGrid
+    //           columnWidth={size.width < 1000 ? '33%' : '25%'}
+    //           gutterWidth={20}
+    //           gutterHeight={20}
+    //           monitorImagesLoaded
+    //         >
+    //           {factChecks.map((item, i) => <RelevantFactCheckCard data={item} key={i} />)}
+    //         </StackGrid>
+    //       </div>
+    //     )}
+    //   </SizeMe>
+    // );
+
+    // info 0
+    const trend = (
+      <div className={styles.section} key={0}>
+        <div className={styles.title}>Trend</div>
+        <VisibilitySensor onChange={this.onTrendOutOfView}>
+          <InteractiveTrend
+            data={currentEvent.trend}
+            currentTimeValue={{
+              x: currentTime,
+              y: this.xyMap.get(currentTime),
+            }}
+            isTimeSelected={isTimeSelected}
+            onChange={this.onCurrentTimeChanged}
+          />
+        </VisibilitySensor>
+      </div>
+    );
+
+    // info 1
+    console.log(influTweets);
+    console.log(tweetInfo);
+    // const tweetItems = influTweets.slice(0, 10).map(item => tweetInfo[item.tweet_id]).map(
+    const tweetItems = influTweets.slice(0, 10).map(
+      (item, i) => (
+        <div className={styles.item} key={i}>
+          <TweetCard
+            data={item}
+            withShadow
+          />
+        </div>),
+    );
+    const tweetsInvolved = (
+      <div className={styles.section} key={1}>
+        <div className={styles.title}>Influential tweets</div>
+        <StackGrid
+          columnWidth="20%"
+          gutterWidth={20}
+          gutterHeight={20}
+          monitorImagesLoaded
+          gridRef={grid => this.setTweetGridRef(grid)}
+        >
+          {tweetItems}
+        </StackGrid>
+      </div>
+    );
+
+    // info 2
+    const accountItems = influUsers.slice(0, 10).map(item => userInfo[item.id_str]).map(
+      (item, i) => (
+        <div className={styles.item} key={i}>
+          <AccountCard
+            data={item}
+            tweetCount={influUsers[i].count}
+          />
+        </div>),
+    );
+    const accountsInvolved = (
+      <div className={styles.section} key={2}>
+        <div className={styles.title}>Influential accounts</div>
+        <StackGrid
+          columnWidth="20%"
+          gutterWidth={20}
+          gutterHeight={20}
+          monitorImagesLoaded
+          gridRef={grid => this.setAccountGridRef(grid)}
+        >
+          {accountItems}
+        </StackGrid>
+      </div>
+    );
+
+    // info 3
+    const map = (
+      <div className={styles.section} key={3}>
+        <div className={styles.title}>
+          <div className={styles.text}>Geographic propagation</div>
+          <div className={styles.info}>
+            <Popover
+              isOpen={isMapInfoOpen}
+              position="bottom"
+              content={(
+                <div className={styles.popover}>As location is only available if user explicitly shares his/her location while sending the tweet, and only a few users choose to do so, so by default this shows the location user displays in their Twitter profile instead.</div>
+              )}
+            >
+              <img onClick={this.onMapInfoClicked} alt="info" src={infoImg} />
+            </Popover>
+          </div>
+        </div>
+        <div className={styles.body}>
+          <GeoMap
+            tweets={currentEvent.tweets}
+            geoInfo={geoInfo[currentEvent.name]}
+            isSelfAnimated={false}
+            currentTime={currentTime}
+            eventName={this.eventName}
+          />
+        </div>
+      </div>
+    );
+
+    // info 4
+    const diffusionNetwork = (
+      <div className={styles.section} key={4}>
+        <div className={styles.title}>Diffusion network</div>
+        <DiffusionNetwork
+          data={diffusionData}
+          currentTime={currentTime}
+          eventName={this.eventName}
+          onRedirectToTIBClicked={this.onRedirectToTIBClicked}
+        />
+      </div>
+    );
+
+    const TIBElement = (
+      <div className={styles.section} key="tib">
+        <TIB
+          data={diffusionData}
+          deadline={deadline}
+          onDeadlineChange={this.onCurrentTimeChanged}
+          onDeadLineUpdated={this.onDeadLineUpdated}
+          onMaxDeadLineCalculated={this.onMaxDeadLineCalculated}
+          eventName={this.eventName}
+          selectedSourceTweetId={this.selectedSourceTweetIdToTIB || ''}
+        />
+      </div>
+    );
+
+    const infoOptions = Object.values(INFO_ITEMS)
+      .sort((a, b) => a.index - b.index)
+      .map((item) => {
+        if (selectedInfo === item.index) {
+          return (
+            <span
+              className={styles.containerSelected}
+              onClick={() => this.onInfoOptionUpdate(item.index)}
+              key={item.index}
+            >
+              {item.title}
+            </span>
+          );
+        }
+
+        if (item.index === 2 || item.index === 3) {
+          return (
+            <span
+              className={styles.containerDisabled}
+              key={item.index}
+            >
+              {item.title}
+            </span>
+          );
+        }
+
+        return (
+          <span
+            className={styles.container}
+            onClick={() => this.onInfoOptionUpdate(item.index)}
+            key={item.index}
+          >
+            {item.title}
+          </span>
+        );
+      });
+    // const infoItems = [tweetsInvolved, accountsInvolved, relevantFactChecks, map, diffusionNetwork, TIBElement];
+    const infoItems = [tweetsInvolved, accountsInvolved, map, map, diffusionNetwork, TIBElement];
+    const isTIBSelected = selectedInfo === INFO_ITEMS.tib.index;
+    const timeTitle = isTIBSelected ? 'Deadline' : 'Time';
+    const timeMessage = isTIBSelected ? 'Please move the slider.' : 'Please click on trend.';
+
+    return (
+      <div className={styles.page}>
+        <div className={styles.main}>
+          <div className={styles.leftArea}>
+            <div className={styles.desc}>
+              <div className={styles.descContainer}>{isFromSearch ? decodeURIComponent(currentEvent.desc) : currentEvent.desc}</div>
+            </div>
+            <div className={styles.optionContainer}>
+              <div className={styles.information}>
+                <div className={styles.title}>Info</div>
+                <div className={styles.listContainer}>{infoOptions}</div>
+              </div>
+              <div className={styles.date}>
+                <div className={styles.title}>{timeTitle}</div>
+                <div className={styles.time}>
+                  <div className={styles.top}>
+                    {currentTime > 0
+                      ? moment.unix(currentTime).format('h a MMM DD, YYYY')
+                      : timeMessage}
+                    {isTimeSelected ? (
+                      <div className={styles.bg} onClick={this.onTimeCloseButtonClicked}>
+                        <img src={closeImg} alt="X" />
+                      </div>
+                    ) : null}
+                  </div>
+                  {isTIBSelected ? (
+                    <div className={styles.bottom}>
+                      <div className={styles.input}>
+                        <InputNumber
+                          min={0}
+                          max={maxDeadLine.day || 0}
+                          value={deadline.day === null ? maxDeadLine.day : deadline.day}
+                          onChange={v => this.onDeadlineSet(v, true)}
+                        />
+                        <span className={styles.text}>days</span>
+                      </div>
+                      <div className={styles.input}>
+                        <InputNumber
+                          min={0}
+                          max={23}
+                          value={deadline.hour === null ? maxDeadLine.hour : deadline.hour}
+                          onChange={v => this.onDeadlineSet(v, false)}
+                        />
+                        <span className={styles.text}>hours</span>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.content}>
+            {isTIBSelected ? null : trend /* display trend for all info other than TIB */}
+            {infoItems[selectedInfo]}
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+DetailPage.propTypes = {
+  location: PropTypes.object.isRequired,
+  getEvent: PropTypes.func.isRequired,
+  // getGeoInfo: PropTypes.func.isRequired,
+  getProgData: PropTypes.func.isRequired,
+  getDiffusionData: PropTypes.func.isRequired,
+  getSearchData: PropTypes.func.isRequired,
+  getUsers: PropTypes.func.isRequired,
+  getTweets: PropTypes.func.isRequired,
+  geoInfo: PropTypes.object,
+  isLoadingEvent: PropTypes.bool.isRequired,
+  isLoadingProgData: PropTypes.bool.isRequired,
+  isLoadingDiffusionData: PropTypes.bool.isRequired,
+  currentEvent: PropTypes.object,
+  progData: PropTypes.array,
+  diffusionData: PropTypes.array,
+  userInfo: PropTypes.object.isRequired,
+  tweetInfo: PropTypes.object.isRequired,
+  isFromSearch: PropTypes.bool,
+};
+
+DetailPage.defaultProps = {
+  currentEvent: null,
+  geoInfo: null,
+  progData: [],
+  diffusionData: [],
+  isFromSearch: false,
+};
+
+export default withRouter(connect(
+  state => ({
+    // rumours: state.data.trendingRumours,
+    geoInfo: state.data.geoInfo,
+    currentEvent: state.details.currentEvent,
+    progData: state.details.progData,
+    diffusionData: state.details.diffusionData,
+    isLoadingEvent: state.details.isLoadingEvent,
+    isLoadingProgData: state.details.isLoadingProgData,
+    isLoadingDiffusionData: state.details.isLoadingDiffusionData,
+    userInfo: state.userInfo,
+    tweetInfo: state.tweetInfo,
+  }),
+  dispatch => ({
+    getEvent: eventName => dispatch(fetchEventByName(eventName)),
+    getProgData: eventName => dispatch(fetchProgressiveDataByName(eventName)),
+    // getGeoInfo: eventName => dispatch(fetchEventGeoInfo(eventName)),
+    getDiffusionData: eventName => dispatch(fetchDiffusionDataByName(eventName)),
+    getUsers: ids => dispatch(fetchUsersByIds(ids)),
+    // getTweets: (eventName, ids) => dispatch(fetchTweetsByIds(eventName, ids)),
+    getTweets: ids => dispatch(fetchTweetsByIds(ids)),
+    getSearchData: query => dispatch(fetchSearchData(query)),
+  }),
+)(DetailPage));
