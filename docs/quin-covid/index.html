@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Quin-COVID - LetsCheck documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Quin-COVID";
+        var mkdocs_page_input_path = "quin-covid.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> LetsCheck documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../deployment-overview/">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../letscheck-website/">LetsCheck website</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Twatch</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../twatch/">Application</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../twatch-crawler/">Crawler</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Quin</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Quin-COVID</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#set-up-from-scratch">Set up from scratch</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-up-the-gpu">Setting up the GPU</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dataset-preparation">Dataset preparation</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../quin-general/">Quin-general</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api-request-handling/">API request handling</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">LetsCheck documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Quin</li>
+      <li class="breadcrumb-item active">Quin-COVID</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="quin-covid">Quin-COVID</h1>
+<p>The Quin-COVID backend model currently runs on the DGX A100 workstation. It requires at least 8GB RAM and one GPU with 4GB+ VRAM.</p>
+<h2 id="quick-start">Quick start</h2>
+<p>The Quin-COVID process is currently managed as a system service, with the script located at <code>/etc/init.d/quin-covid</code>.</p>
+<p>To check if Quin-COVID is running, run the following command:</p>
+<pre><code class="language-bash">/etc/init.d/quin-covid status
+</code></pre>
+<p>If it is not running, you can start the service by running:</p>
+<pre><code class="language-bash">/etc/init.d/quin-covid start
+</code></pre>
+<p>To run the script directly for testing, change the directory to then run <code>quin_covid.py --mode serve</code></p>
+<h2 id="set-up-from-scratch">Set up from scratch</h2>
+<p>1) Download the encoder model from <a href="https://drive.google.com/file/d/1qsDPreap_26mL3UFDEyVPoe9ygbniLx9/view?usp=sharing">here</a> and put it under <code>models/weights/encoder</code>
+2) Download the NLI model from <a href="https://drive.google.com/file/d/15Txw44izeEHCzzXIpxwVXFvNz_-_kng-/view?usp=sharing">here</a> and put it under <code>models/weights/nli</code>
+3) Download the passage ranking model from <a href="https://drive.google.com/file/d/1D0cGpM2uDMWmnYmF35Tbuv0Z_yE4l0U8/view?usp=sharing">here</a> and put it under <code>models/weights/passage_ranker</code>
+4) Run <code>pip install -r backend/requirements.txt</code></p>
+<h3 id="setting-up-the-gpu">Setting up the GPU</h3>
+<p>In <code>backend/quin_covid.py</code> you can find the following line:</p>
+<p><code>os.environ["CUDA_VISIBLE_DEVICES"] = "..."</code></p>
+<p>Depending on which GPUs are available on the machine, you should set this variable to at least one avaiable GPU id. One GPU is sufficient to run the system. For example, if GPU number 3 is available then you can set it as follows:</p>
+<p><code>os.environ["CUDA_VISIBLE_DEVICES"] = "3"</code></p>
+<p>A nice way to check the availability of the GPUs is using the <code>gpustat</code> command. You can install this tool using pip:</p>
+<p><code>pip install gpustat</code></p>
+<h3 id="dataset-preparation">Dataset preparation</h3>
+<p>There are existing scripts <code>scripts/update-quin-covid.news.sh</code> and <code>scripts/update-quin-covid-research.sh</code> which facilitate dataset updates. The exact steps are explained below:</p>
+<p>1) To crawl new articles, run <code>backend/crawler.py</code> to update <code>backend/data/covid-news.jsonl</code>.</p>
+<p>2) To create a new dataset of research papers based on the CORD corpus:
+   - Download the latest CORD dataset <a href="https://www.semanticscholar.org/cord19/download">here</a>.
+   - Place it under <code>backend/data/cord/</code>.
+   - Run <code>backend/data/cord/build_dataset.py</code> to generate a new <code>backend/data/cord/dataset.jsonl</code> file.</p>
+<p>3) Once the data files are in place, run <code>preprocessing/preprocess_encode.py --mode index</code> for scientific articles, or <code>preprocessing/preprocess_encode.py --mode index-news</code> for news, to encode and save the indexed data in the database.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../twatch-crawler/" class="btn btn-neutral float-left" title="Crawler"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../quin-general/" class="btn btn-neutral float-right" title="Quin-general">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../twatch-crawler/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../quin-general/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

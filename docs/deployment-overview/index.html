@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Overview - LetsCheck documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Overview";
+        var mkdocs_page_input_path = "deployment-overview.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> LetsCheck documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#letscheck-website">LetsCheck Website</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#twatch">Twatch</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quin">Quin</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../letscheck-website/">LetsCheck website</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Twatch</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../twatch/">Application</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../twatch-crawler/">Crawler</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Quin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../quin-covid/">Quin-COVID</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../quin-general/">Quin-general</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api-request-handling/">API request handling</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">LetsCheck documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="letscheck-deployment-overview">LetsCheck deployment overview</h1>
+<p><img alt="Deployment overview diagram" src="../img/deployment-overview.png" /></p>
+<h2 id="letscheck-website">LetsCheck Website</h2>
+<p>The public-facing LetsCheck website is a static HTML site hosted on an NUS VM using an Apache web server.</p>
+<p>The site features demos for two projects: LetsCheck COVID and LetsCheck General Search.</p>
+<ul>
+<li>LetsCheck COVID is the original fact-checking project, divided into three sections that handle different information sources: Twitter, news, and scientific articles. The first section, Twatch, processes and analyzes COVID-related Twitter data. The other two sections use Quin, a model designed to fact-check statements against datasets, in this case, COVID-related news and scientific articles.</li>
+<li>LetsCheck General Search is based on a modified version of the Quin-general model. It first conducts a general web search for the query, then uses the Quin model to fact-check the results from the search.</li>
+</ul>
+<h2 id="twatch">Twatch</h2>
+<p>Twatch offers a searchable archive of COVID-related claims circulating on X (formerly Twitter) from 2020 to 2023, along with visualizations showing their impact.</p>
+<p>Twatch consists of the following components:</p>
+<ul>
+<li><strong>Frontend</strong>: A web app built using the React library.</li>
+<li><strong>Backend-API</strong>: For more details, see <a href="../api-request-handling/">this page</a>.</li>
+<li><strong>Backend (Data)</strong>: A Python script that retrieves data from the tweet database.</li>
+<li><strong><a href="../twatch-crawler/">Crawler</a></strong>: Downloads tweet data from the <a href="https://github.com/thepanacealab/covid19_twitter">Panacea Lab dataset</a>. This component is currently inactive as the dataset is no longer being updated.</li>
+</ul>
+<h2 id="quin">Quin</h2>
+<p>Quin is a user-friendly framework designed for large-scale fact-checking and question answering. You can explore it on the <a href="https://github.com/algoprog/Quin">Github repository</a>. LetsCheck offers demos for two Quin models: Quin-COVID and Quin-web.</p>
+<ul>
+<li><strong>Quin-COVID</strong>: Two separate Quin-COVID instances are deployed on a DGX A100 workstation. One instance is based on a dataset of news articles, while the other uses scientific articles from the <a href="https://github.com/allenai/cord19">COVID-19 Open Research Dataset</a>.</li>
+<li><strong>Quin-general</strong>: An upgraded version of Quin that supports general queries and conducts fact-checking using web search results.</li>
+<li><strong>Quin-frontend</strong>: For more details, refer to <a href="../api-request-handling/">this page</a>.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../letscheck-website/" class="btn btn-neutral float-right" title="LetsCheck website">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../letscheck-website/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Application - LetsCheck documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Application";
+        var mkdocs_page_input_path = "twatch.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> LetsCheck documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../deployment-overview/">Overview</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../letscheck-website/">LetsCheck website</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Twatch</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Application</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#deployment">Deployment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites-for-production-server">Prerequisites for Production Server</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#steps">Steps</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#maintenance">Maintenance</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development">Development</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisite">Prerequisite</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#database">Database</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../twatch-crawler/">Crawler</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Quin</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../quin-covid/">Quin-COVID</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../quin-general/">Quin-general</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api-request-handling/">API request handling</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">LetsCheck documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Twatch</li>
+      <li class="breadcrumb-item active">Application</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="overview">Overview</h1>
+<p>Twatch is an interactive web system designed for topic propagation analysis on Twitter. A demo can be accessed <a href="https://letscheck.nus.edu.sg/">here (under the <em>Twitter</em> tab)</a>.</p>
+<h2 id="deployment">Deployment</h2>
+<h3 id="prerequisites-for-production-server">Prerequisites for Production Server</h3>
+<ul>
+<li><strong>Docker</strong></li>
+<li>A <strong>Linux server</strong> is preferred, as scripts are written for the Linux shell only.</li>
+</ul>
+<h3 id="steps">Steps</h3>
+<p>Twatch is deployed using Docker. Follow these steps:</p>
+<ol>
+<li>
+<p>Ensure that the script <code>prepare_deploy_image.sh</code> is executable. If unsure, run:
+   <code>chmod +x prepare_deploy_image.sh</code></p>
+</li>
+<li>
+<p>Use the following command to generate Docker images:
+   <code>./prepare_deploy_image.sh -[f|b|d]</code></p>
+</li>
+<li>
+<p>The options <code>f</code>, <code>d</code>, and <code>b</code> refer to the three components: frontend, backend, and database.</p>
+</li>
+<li>If you only want to build the Docker images for the frontend and backend, you can run:
+  <code>./prepare_deploy_image.sh -fb</code></li>
+<li>
+<p>The database has been migrated to an SQLite file. This script, along with all other scripts mentioned below, retains the lines dealing with the Postgres container for reference only.</p>
+</li>
+<li>
+<p>After the script exits successfully with the message <code>Finished creating deployment file</code>, the Docker images will be available in the archive file <code>twatch-&lt;DATE&gt;.tar.gz</code>. Transfer this file to the production server (currently the NUS VM server), along with the helper scripts <code>deploy.sh</code> and <code>docker-run.sh</code>.</p>
+</li>
+<li>Make the scripts executable:
+   <code>chmod +x *.sh</code></li>
+<li>Load the docker images on the production server using the script <code>deploy.sh</code> </li>
+<li>Start the docker containers by running the script <code>docker-run.sh</code><ul>
+<li>The script assumes that there is a docker network named <code>letscheck-network</code>, since this is the one set up earlier on the NUS VM. For deployment on other platforms, this should be changed. The containers should be connected to the same docker network because they need to talk to each other.</li>
+<li>Similarly, the port values are based on NUS VM configurations. For other platforms, modify them accordingly, especially the outbound port of <code>twatch-frontend</code>. </li>
+</ul>
+</li>
+</ol>
+<h2 id="maintenance">Maintenance</h2>
+<ul>
+<li>The <a href="../twatch-crawler/">tweet crawler</a> runs on the DGX A100 workstation. It checks for new daily tweet IDs from the <a href="https://github.com/thepanacealab/covid19_twitter/tree/master/dailies">Panacea Lab dataset</a> since last update, and uses Twitter API to get fully hydrated tweet information. The crawler stores data in an SQLite database file.</li>
+<li>The crawler has stopped running as Panacea Lab dataset has stopped updating since 15 April 2023.</li>
+</ul>
+<h2 id="development">Development</h2>
+<h3 id="prerequisite">Prerequisite</h3>
+<ul>
+<li>Node.js and Yarn for package management</li>
+<li>postgres</li>
+</ul>
+<h3 id="database">Database</h3>
+<p>The database creation script is available at <code>scripts/init_with_fts.sql</code>.</p>
+<h3 id="setup">Setup</h3>
+<ul>
+<li>Run <code>yarn install</code> in this folder to install the required node packages.</li>
+<li>Because frontend and backend are developed independently, I didn't write a script to run both in parallel.</li>
+<li>To run backend, change directory to <code>backend/</code> and execute <code>node index.js</code>. The default port is 8080.</li>
+<li>To run frontend, change directory to <code>frontend/</code> and execute <code>yarn run start</code>. The default port is 3000.</li>
+<li>Twatch should be available at <a href="http://localhost:3000/">http://localhost:3000/</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../letscheck-website/" class="btn btn-neutral float-left" title="LetsCheck website"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../twatch-crawler/" class="btn btn-neutral float-right" title="Crawler">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../letscheck-website/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../twatch-crawler/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
